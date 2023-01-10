@@ -7,11 +7,12 @@ open();
 fileName = File.nameWithoutExtension;
 dirName = File.directory;
 maindir=File.getParent(dirName);
-dir1=maindir+"/Source";
-dirRoi=maindir+"/CortexRoi";
-dirMeas=maindir+"/CellMeasurements";
+dir1=maindir+"/1_Source";
+dirRoi=maindir+"/3_CellRoi";
+dirMeas=maindir+"/4_CellMeasurements";
 list = getFileList(dir1);
 N=list.length;
+run("Close All");
 
 radiusSteleStandard=5;//Measured on a bunch of images
 
@@ -24,8 +25,7 @@ for (i=0; i<N; i++) {
 	cleanRois();
 	//Open and prepare image
 	prepareImage(dir1+"/"+list[i]);
-	roiManager("open", dirRoi +"/"+ list[i]+"cortex_in.zip");
-	roiManager("open", dirRoi +"/"+ list[i]+"cortex_out.zip");
+	roiManager("open", dirRoi +"/"+ list[i]+".zip");
 	roiManager("show all");
 	waitForUser;
 }

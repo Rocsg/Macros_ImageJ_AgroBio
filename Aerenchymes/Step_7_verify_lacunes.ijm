@@ -7,26 +7,36 @@ open();
 fileName = File.nameWithoutExtension;
 dirName = File.directory;
 maindir=File.getParent(dirName);
-dir1=maindir+"/Source";
-dirRoi=maindir+"/CellRoi";
-dirMeas=maindir+"/CellMeasurements";
+dir1=maindir+"/1_Source";
+dirRoi=maindir+"/3_CellRoi";
+dirLac=maindir+"/5_LacunesIndices";
 list = getFileList(dir1);
 N=list.length;
-run("Close All");
 
-radiusSteleStandard=5;//Measured on a bunch of images
-
+print("Toto1 "+N);
 
 
 
 for (i=0; i<N; i++) {
+	print("Toto2");
 	print(i+" "+list[i]);
 	run("Close All");
 	cleanRois();
 	//Open and prepare image
 	prepareImage(dir1+"/"+list[i]);
+	prepareImage(dir1+"/"+list[i]);
+	
 	roiManager("open", dirRoi +"/"+ list[i]+".zip");
 	roiManager("show all");
+	Table.open(dirLac +"/"+ list[i]+".csv");
+	ind=Table.getColumn("Displayed index (1-inf)");
+	nLac=Table.size;
+	for(k=0;k<nLac;k++){
+		print("Selecting the roi "+k+" over "+nLac+" ,which is "+ind[k]);
+		roiManager("select", ind[k]-1);
+		fill();
+	}
+	cleanRois();
 	waitForUser;
 }
 

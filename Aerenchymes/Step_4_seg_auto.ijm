@@ -9,36 +9,49 @@ dirName = File.directory;
 maindir=File.getParent(dirName);
 dir1=maindir+"/1_Source";
 dirRoi=maindir+"/3_CellRoi";
-dirLac=maindir+"/5_LacunesIndices";
 list = getFileList(dir1);
 N=list.length;
+run("Close All");
 
-print("Toto1 "+N);
-
-
+//radiusSteleStandard=5;//Measured on a bunch of images
+run("Colors...", "foreground=white background=black selection=yellow");
 
 for (i=0; i<N; i++) {
-	print("Toto2");
-	print(i+" "+list[i]);
-	run("Close All");
-	cleanRois();
 	//Open and prepare image
+	print("Toto");
 	prepareImage(dir1+"/"+list[i]);
-	prepareImage(dir1+"/"+list[i]);
-	roiManager("open", dirRoi +"/"+ list[i]+".zip");
-	roiManager("show all");
-	Table.open(dirLac +"/"+ list[i]+".csv");
-	ind=Table.getColumn("Displayed index (1-inf)");
-	nLac=Table.size;
-	for(k=0;k<nLac;k++){
-		print("Selecting the roi "+k+" over "+nLac+" ,which is "+ind[k]);
-		roiManager("select", ind[k]-1);
-		fill();
-	}
-	cleanRois();
-	waitForUser;
-}
+	mag=getMagnification();
+	//radiusStele=radiusSteleStandard*mag;
 
+	//Get cortex area
+	roiManager("open", maindir+"/2_CortexRoi/"+list[i]+"cortex_in.zip");
+	roiManager("Select", 0);
+	run("Clear", "slice");
+	cleanRois();
+	roiManager("open", maindir+"/2_CortexRoi/"+list[i]+"cortex_out.zip");
+	roiManager("Select", 0);
+	run("Clear Outside");
+	cleanRois();
+	run("Enhance Contrast", "saturated=1");
+	run("Apply LUT");
+
+	run("Gaussian Blur...", "sigma="+(mag/6));
+	rename("gauss");
+	run("Find Maxima...", "prominence=3 light output=[Single Points]");
+	rename("marks");
+	run("Marker-controlled Watershed", "input=gauss marker=marks mask=None compactness=0 binary calculate use");
+	rename(list[i]);
+	setMinAndMax("0.50", "0.50");
+	setOption("ScaleConversions", true);
+	run("8-bit");
+	setThreshold(1, 255);
+
+	run("Analyze Particles...", "size=0-Infinity circularity=0-1.00 display clear exclude add");
+	roiManager("Save", dirRoi +"/"+ list[i]+".zip");		
+
+	cleanRois();
+	run("Close All");
+}
 
 
 run("Close All");

@@ -13,16 +13,15 @@ img=getImageID();
 imgToTry=getInfo("image.filename");
 maindir=File.getParent(dirName);
 print(maindir);
-dir1=maindir+"/Source";
-dirRoi=maindir+"/CellRoi";
-dirLac=maindir+"/LacunesIndices";
+dir1=maindir+"/1_Source";
+dirRoi=maindir+"/3_CellRoi";
+dirLac=maindir+"/5_LacunesIndices";
 
 
 
 
 list = getFileList(dir1);
 N=list.length;
-N=11;
 
 print("Entering loop ");
 for (ii=0; ii<N; ii++) {

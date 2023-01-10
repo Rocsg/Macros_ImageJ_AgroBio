@@ -26,7 +26,7 @@ print("Entering loop ");
 for (i=0; i<N; i++) {
 	//Open and prepare image
 	print("Starting loop with "+list[i]);
-	if(File.exists(dirRoi+"/"+list[i]+"cortex_in.zip")){
+	if(File.exists(dirRoi+"/"+list[i]+"cortex_in.zip") && File.exists(dirRoi+"/"+list[i]+"stele_out.zip")){
 		print("Skipping file "+list[i]+"cortex_in.zip");
 		continue;
 	}
