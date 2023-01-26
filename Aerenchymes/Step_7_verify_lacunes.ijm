@@ -1,6 +1,6 @@
 // Pieces of macros for RootCell treatments
 
-// Trouve les centroids des steles et sauvegarde un ROI contenant tous les centres des images d'un dossier
+// This script verifies the lacune selected before the last automated step of ratio computation
 run("Close All");
 cleanRois();
 open();
@@ -13,7 +13,12 @@ dirLac=maindir+"/5_LacunesIndices";
 list = getFileList(dir1);
 N=list.length;
 
-print("Toto1 "+N);
+function prepareImage(path){
+	open(path);
+	run("8-bit");
+	run("Enhance Contrast", "saturated=0.35");
+	run("Apply LUT");
+}
 
 
 
@@ -22,19 +27,26 @@ for (i=0; i<N; i++) {
 	print(i+" "+list[i]);
 	run("Close All");
 	cleanRois();
+
+
 	//Open and prepare image
 	prepareImage(dir1+"/"+list[i]);
 	prepareImage(dir1+"/"+list[i]);
 	
 	roiManager("open", dirRoi +"/"+ list[i]+".zip");
 	roiManager("show all");
+	//Open table	
 	Table.open(dirLac +"/"+ list[i]+".csv");
-	ind=Table.getColumn("Displayed index (1-inf)");
 	nLac=Table.size;
-	for(k=0;k<nLac;k++){
-		print("Selecting the roi "+k+" over "+nLac+" ,which is "+ind[k]);
-		roiManager("select", ind[k]-1);
-		fill();
+	selectWindow(replace(list[i],".tif","-1.tif"));
+	if(nLac>0){
+		ind=Table.getColumn("Displayed index (1-inf)");
+		nLac=Table.size;
+		for(k=0;k<nLac;k++){
+			print("Selecting the roi "+k+" over "+nLac+" ,which is "+ind[k]);
+			roiManager("select", ind[k]-1);
+			fill();
+		}
 	}
 	cleanRois();
 	waitForUser;
@@ -73,12 +85,5 @@ function getCoordsOfPointInRoi(path){
 	tab[0]=xpoints[0];
 	tab[1]=ypoints[0];
 	return tab;
-}
-
-function prepareImage(path){
-	open(path);
-	run("8-bit");
-	run("Enhance Contrast", "saturated=0.35");
-	run("Apply LUT");
 }
 
