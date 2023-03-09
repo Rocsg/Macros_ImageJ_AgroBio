@@ -11,8 +11,7 @@ Use these macros :
 
 * Install your images in directory 1_Source
 
-* Run the macros from Step_1 to Step_7
-To run a macro, drag it into Fiji, then click "Run". When asked, select a random image in the directory 1_Source
+* Run the macros from Step_1 to Step_7. To run a macro, drag-slide it into Fiji, then click "Run". When asked, select a random image in the directory 1_Source
 
 Step 1 : for each image appearing, use the polygon tool to draw the stele contour, then type "T", then draw the cortex inside contour, then type T
 Step 2 : for each image appearing, use the polygon tool to draw the cortex outside contour, then type T
