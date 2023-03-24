@@ -1,6 +1,8 @@
 # Toolsets_PHIV_ImageJ
 
 Use these macros :
+* Clone this repo (with git clone for example, or download the zip file)
+
 * Install Fiji https://imagej.net/software/fiji/
 
 * Generate an arborescence with the corresponding directories :
