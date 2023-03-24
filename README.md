@@ -5,6 +5,8 @@ Use these macros :
 
 * Install Fiji https://imagej.net/software/fiji/
 
+* Install the plugin MorpholibJ. To that end, click in Fiji : Help > Update > and look for IJPB-plugins. Click on it, then on close, then apply. Then reboot Fiji
+
 * Generate a folders arborescence that you will use for the processing. It have to contains empty directories :
 1_Source
 2_CortexRoi
