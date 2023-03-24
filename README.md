@@ -1,11 +1,11 @@
 # Toolsets_PHIV_ImageJ
 
 Use these macros :
-* Clone this repo (with git clone for example, or download the zip file)
+* Clone this repo (with git clone for example, or click on the green button <Code>, and then "Download zip", then extract the contents in a folder). 
 
 * Install Fiji https://imagej.net/software/fiji/
 
-* Generate an arborescence with the corresponding directories :
+* Generate a folders arborescence that you will use for the processing. It have to contains empty directories :
 1_Source
 2_CortexRoi
 3_CellRoi
