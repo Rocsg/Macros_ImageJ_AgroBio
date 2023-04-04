@@ -7,6 +7,9 @@ Use these macros :
 
 * Install the plugin MorpholibJ. To that end, click in Fiji : Help > Update > and look for IJPB-plugins. Click on it, then on close, then apply. Then reboot Fiji
 
+* Install the plugin Fijiyama. To that end, click in Fiji : Help > Update > then click on the button Add update site, and fill the fields : name = “/plugins/fijiyama”, site = https://sites.imagej.net/Fijiyama), then check the associated checkbox.
+
+  
 * Generate a folders arborescence that you will use for the processing. It have to contains empty directories :
 1_Source
 2_CortexRoi
@@ -24,4 +27,6 @@ Step 4 : automatic segmentation
 Step 5 : verify segmentation
 Step 6 : for each lacune, click on it, then type "T". When every lacune is clicked, click on the upper left corner of the image, then "T"
 Step 7 : verify lacunes. Whenever lacunes are not good, note the image name (title), and suppress the corresponding roi in 3_CellRoi. When you will run again the previous step, the macro will only ask you to do the lacune you removed
+Step 8 : compute the summary. Just run the macro as the previous ones. It generates a CSV at the end, right into the main folder of your experiment
+  
 
