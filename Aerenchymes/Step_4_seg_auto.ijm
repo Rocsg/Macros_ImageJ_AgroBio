@@ -16,11 +16,21 @@ run("Close All");
 //radiusSteleStandard=5;//Measured on a bunch of images
 run("Colors...", "foreground=white background=black selection=yellow");
 
+answer=getBoolean("Are you Paula ?");//1 if it is Paula, 0 else
+
+
 for (i=0; i<N; i++) {
 	//Open and prepare image
 	print("Toto");
 	prepareImage(dir1+"/"+list[i]);
-	mag=getMagnification();
+	mag=10;
+	if(answer==0){
+		mag=getMagnification();
+	}
+	if(answer==1){
+		mag=getMagnificationPaula();
+	}
+	
 	//radiusStele=radiusSteleStandard*mag;
 
 	//Get cortex area
@@ -63,6 +73,10 @@ function cleanRois(){
 		roiManager("Deselect");
 		roiManager("Delete");
 	}
+}
+
+function getMagnificationPaula(){
+	return 10;
 }
 
 function getMagnification(){
