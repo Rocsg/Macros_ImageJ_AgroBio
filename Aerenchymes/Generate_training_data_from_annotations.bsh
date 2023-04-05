@@ -1,0 +1,5 @@
+
+run("Close All");
+cleanRois();
+open();
+
