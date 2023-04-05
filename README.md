@@ -7,7 +7,10 @@ Use these macros :
 
 * Install the plugin MorpholibJ. To that end, click in Fiji : Help > Update > and look for IJPB-plugins. Click on it, then on close, then apply. Then reboot Fiji
 
-* Install the plugin Fijiyama. To that end, click in Fiji : Help > Update > then click on the button Add update site, and fill the fields : name = “/plugins/fijiyama”, site = https://sites.imagej.net/Fijiyama), then check the associated checkbox.
+* Install the plugin ImageJ-ITK. To that end, click in Fiji : Help > Update > and look for ImageJ-ITK. Click on it, then on close, then apply. Then reboot Fiji
+
+
+* Install the plugin Fijiyama. To that end, click in Fiji : Help > Update > then click on the button Add update site, and fill the fields : URL = https://sites.imagej.net/Fijiyama , name= whatever, then check the associated checkbox.
 
   
 * Generate a folders arborescence that you will use for the processing. It have to contains empty directories :
