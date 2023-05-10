@@ -3,13 +3,15 @@
 // This script verifies the lacune selected before the last automated step of ratio computation
 run("Close All");
 cleanRois();
+showMessage("Verify the lacunes. Just check every image, then click ok.\nIf you notice something bad (some missing cells), note the title (image name), and the bad contour,\nIf necessary, remove the lacune annotation (in 4_LacunesIndices), then run back lacunes annotations.");
+showMessage("First, select an image in the 1_Source directory\nSelect any image, whatever, it is just used to find the parent folder.");
 open();
 fileName = File.nameWithoutExtension;
 dirName = File.directory;
 maindir=File.getParent(dirName);
 dir1=maindir+"/1_Source";
 dirRoi=maindir+"/3_CellRoi";
-dirLac=maindir+"/5_LacunesIndices";
+dirLac=maindir+"/4_LacunesIndices";
 list = getFileList(dir1);
 N=list.length;
 
@@ -48,6 +50,7 @@ for (i=0; i<N; i++) {
 			fill();
 		}
 	}
+	Table.setLocationAndSize(0,0,100,100);
 	cleanRois();
 	waitForUser;
 }
@@ -56,24 +59,13 @@ for (i=0; i<N; i++) {
 
 run("Close All");
 cleanRois();
-
+showMessage("Finished");
 
 function cleanRois(){
 	if (roiManager("count")>0){
 		roiManager("Deselect");
 		roiManager("Delete");
 	}
-}
-
-function getMagnification(){
-	s0=getImageInfo();
-	index1=indexOf(s0, "Objective Correction=");
-	s1=substring(s0, index1+20);
-	index2=indexOf(s1, "NominalMagnification=\"");
-	s3=substring(s1, index2+22);
-	index3=indexOf(s3, "\"");
-	s4=substring(s1, index2+22,index3+index2+22);
-	return parseInt(s4);
 }
 
 function getCoordsOfPointInRoi(path){

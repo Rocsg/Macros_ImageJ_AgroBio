@@ -1,6 +1,8 @@
 // Pieces of macros for RootCell treatments. This part 
 run("Close All");
 cleanRois();
+showMessage("Click on the aerenchymes. If you want to remove an aerenchyme, click again on it (then -T- command).\nTime estimated : 1 mn per image.");
+showMessage("First, select an image in the 1_Source directory\nSelect any image, whatever, it is just used to find the parent folder.");
 
 //Handle data and datapath
 open();
@@ -15,7 +17,7 @@ maindir=File.getParent(dirName);
 print(maindir);
 dir1=maindir+"/1_Source";
 dirRoi=maindir+"/3_CellRoi";
-dirLac=maindir+"/5_LacunesIndices";
+dirLac=maindir+"/4_LacunesIndices";
 
 
 
@@ -123,7 +125,7 @@ for (ii=0; ii<N; ii++) {
 	Table.update();
 }
 
-
+showMessage("finished");
 
 function cleanRois(){
 	if (roiManager("count")>0){

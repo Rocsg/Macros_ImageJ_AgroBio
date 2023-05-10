@@ -3,6 +3,9 @@
 // Trouve les centroids des steles et sauvegarde un ROI contenant tous les centres des images d'un dossier
 run("Close All");
 cleanRois();
+showMessage("Don t do anything, just wait for it, and appreciate the segmentation being done automatically\nIf you suffer from epillepsy, you should not stay in front of the computer meanwhile\nEstimated time : 3 seconds per image");
+showMessage("First, select an image in the 1_Source directory\nSelect any image, whatever, it is just used to find the parent folder.\nThe images which don't have one of the three expected roi will make the macro fail.");
+
 open();
 fileName = File.nameWithoutExtension;
 dirName = File.directory;
@@ -16,7 +19,7 @@ run("Close All");
 //radiusSteleStandard=5;//Measured on a bunch of images
 run("Colors...", "foreground=white background=black selection=yellow");
 
-answer=getBoolean("Are you Paula ?");//1 if it is Paula, 0 else
+//answer=getBoolean("Are you Paula ?");//1 if it is Paula, 0 else
 
 
 for (i=0; i<N; i++) {
@@ -24,21 +27,16 @@ for (i=0; i<N; i++) {
 	print("Toto");
 	prepareImage(dir1+"/"+list[i]);
 	mag=10;
-	if(answer==0){
-		mag=getMagnification();
-	}
-	if(answer==1){
-		mag=getMagnificationPaula();
-	}
+	mag=getMagnification();
 	
 	//radiusStele=radiusSteleStandard*mag;
 
 	//Get cortex area
-	roiManager("open", maindir+"/2_CortexRoi/"+list[i]+"cortex_in.zip");
+	roiManager("open", maindir+"/2_AreaRoi/"+list[i]+"cortex_in.zip");
 	roiManager("Select", 0);
 	run("Clear", "slice");
 	cleanRois();
-	roiManager("open", maindir+"/2_CortexRoi/"+list[i]+"cortex_out.zip");
+	roiManager("open", maindir+"/2_AreaRoi/"+list[i]+"cortex_out.zip");
 	roiManager("Select", 0);
 	run("Clear Outside");
 	cleanRois();
@@ -66,7 +64,7 @@ for (i=0; i<N; i++) {
 
 run("Close All");
 cleanRois();
-
+showMessage("Finished");
 
 function cleanRois(){
 	if (roiManager("count")>0){
@@ -76,16 +74,22 @@ function cleanRois(){
 }
 
 function getMagnificationPaula(){
+	print("Paola mode, magnification=10.");
 	return 10;
 }
 
 function getMagnification(){
+	s0="";
 	s0=getImageInfo();
+	if((lengthOf(s0))==0)return getMagnificationPaula();
 	index1=indexOf(s0, "Objective Correction=");
+	if(index1==(-1))return getMagnificationPaula();
 	s1=substring(s0, index1+20);
 	index2=indexOf(s1, "NominalMagnification=\"");
+	if(index2==(-1))return getMagnificationPaula();
 	s3=substring(s1, index2+22);
 	index3=indexOf(s3, "\"");
+	if(index3==(-1))return getMagnificationPaula();
 	s4=substring(s1, index2+22,index3+index2+22);
 	return parseInt(s4);
 }

@@ -25,8 +25,8 @@ import ij.WindowManager;
 		
 		String dirSource=new File(dirExp,"1_Source").getAbsolutePath();
 		String dirRoi=new File(dirExp,"3_CellRoi").getAbsolutePath();
-		String dirCortex=new File(dirExp,"2_CortexRoi").getAbsolutePath();
-		String dirLac=new File(dirExp,"5_LacunesIndices").getAbsolutePath();
+		String dirCortex=new File(dirExp,"2_AreaRoi").getAbsolutePath();
+		String dirLac=new File(dirExp,"4_LacunesIndices").getAbsolutePath();
 		String[]imgNames=new File(dirSource).list();
 		ArrayList<String>ar=new ArrayList<String>();
 		for(String s:imgNames)ar.add(s);

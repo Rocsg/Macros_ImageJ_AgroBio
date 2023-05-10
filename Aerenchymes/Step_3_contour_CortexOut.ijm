@@ -2,6 +2,8 @@
 run("Close All");
 cleanRois();
 setTool("oval");
+showMessage("Use the Polygon Roi tool to draw the outside contour of the Cortex.\nThe best way is to stick to following the centers of the bright little cells of the sclerenchyme\nTime estimated : 1 mn per image");
+showMessage("First, select an image in the 1_Source directory\nSelect any image, whatever, it is just used to find the parent folder.\nThe images which already have a cortex_out contour in 2_AreaRoi won t be displayed");
 
 //Handle data and datapath
 open();
@@ -15,7 +17,7 @@ imgToTry=getInfo("image.filename");
 maindir=File.getParent(dirName);
 print(maindir);
 dir1=maindir+"/1_Source";
-dirRoi=maindir+"/2_CortexRoi";
+dirRoi=maindir+"/2_AreaRoi";
 run("Close All");
 
 list = getFileList(dir1);
@@ -26,8 +28,8 @@ print("Entering loop ");
 for (i=0; i<N; i++) {
 	//Open and prepare image
 	print("Starting loop with "+list[i]);
-	if(File.exists(dirRoi+"/"+list[i]+"cortex_in.zip") && File.exists(dirRoi+"/"+list[i]+"stele_out.zip")){
-		print("Skipping file "+list[i]+"cortex_in.zip");
+	if(File.exists(dirRoi+"/"+list[i]+"cortex_out.zip")){
+		print("Skipping file "+list[i]+"cortex_out.zip");
 		continue;
 	}
 	prepareImage(dir1+"/"+list[i]);
@@ -41,20 +43,13 @@ for (i=0; i<N; i++) {
 		wait(100);
 		numberOfRoi=roiManager("count");
 	}
-	roiManager("Save", maindir+"/2_CortexRoi/"+list[i]+"stele_out.zip");			
-		
+	roiManager("Save", maindir+"/2_AreaRoi/"+list[i]+"cortex_out.zip");			
+	
 	cleanRois();
-
-	numberOfRoi=0;
-	while(numberOfRoi<1){
-		wait(100);
-		numberOfRoi=roiManager("count");
-	}
-	roiManager("Save", maindir+"/2_CortexRoi/"+list[i]+"cortex_in.zip");			
 	run("Close All");
-	cleanRois();
 }
 	
+showMessage("finished");
 
 
 

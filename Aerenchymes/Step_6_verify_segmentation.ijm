@@ -3,15 +3,17 @@
 // Trouve les centroids des steles et sauvegarde un ROI contenant tous les centres des images d'un dossier
 run("Close All");
 cleanRois();
+showMessage("Verify the segmentation. Just check every image, then click ok.\nIf you notice something bad (some missing cells), note the title (image name), and the bad contour,\nMaybe you have taken a cell more or less with your global contours. You can change them and rerun the process.");
+showMessage("First, select an image in the 1_Source directory\nSelect any image, whatever, it is just used to find the parent folder.\nThe images which don't have one of the three expected roi will make the macro fail.");
 open();
 fileName = File.nameWithoutExtension;
 dirName = File.directory;
 maindir=File.getParent(dirName);
 dir1=maindir+"/1_Source";
-dirRoi=maindir+"/2_CortexRoi";
-dirMeas=maindir+"/4_CellMeasurements";
+dirRoi=maindir+"/3_CellRoi";
 list = getFileList(dir1);
 N=list.length;
+run("Close All");
 
 radiusSteleStandard=5;//Measured on a bunch of images
 
@@ -24,9 +26,7 @@ for (i=0; i<N; i++) {
 	cleanRois();
 	//Open and prepare image
 	prepareImage(dir1+"/"+list[i]);
-	roiManager("open", dirRoi +"/"+ list[i]+"cortex_in.zip");
-	roiManager("open", dirRoi +"/"+ list[i]+"cortex_out.zip");
-	roiManager("open", dirRoi +"/"+ list[i]+"stele_out.zip");
+	roiManager("open", dirRoi +"/"+ list[i]+".zip");
 	roiManager("show all");
 	waitForUser;
 }
@@ -35,7 +35,7 @@ for (i=0; i<N; i++) {
 
 run("Close All");
 cleanRois();
-
+showMessage("Finished");
 
 function cleanRois(){
 	if (roiManager("count")>0){
@@ -44,16 +44,6 @@ function cleanRois(){
 	}
 }
 
-function getMagnification(){
-	s0=getImageInfo();
-	index1=indexOf(s0, "Objective Correction=");
-	s1=substring(s0, index1+20);
-	index2=indexOf(s1, "NominalMagnification=\"");
-	s3=substring(s1, index2+22);
-	index3=indexOf(s3, "\"");
-	s4=substring(s1, index2+22,index3+index2+22);
-	return parseInt(s4);
-}
 
 function getCoordsOfPointInRoi(path){
 	tab=newArray(2);
