@@ -17,6 +17,7 @@ Use these macros :
 1_Source
 2_CortexRoi
 3_CellRoi
+4_CellMeasurement
 5_LacunesIndices
 
 * Install your images in directory 1_Source
