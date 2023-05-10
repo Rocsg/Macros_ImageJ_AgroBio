@@ -1,6 +1,13 @@
 # Toolsets_PHIV_ImageJ
 
-Use these macros :
+Update 2023 05 10 : 
+* split the first step in two steps. 
+* replace the "asking paola trick" by explicit computation of magnification.
+* Add a beanshell command to automatically generate the csv. It generates a CSV at the end, right into the main folder of your experiment. Warning, tt works only with some filename formats. Sylvie's is : 4_M_I_3_a.tif , and Paola's is 4_A2SB_10.tif . 
+Interested in another file name formats ? Just write it down in the Step9 macro (ask to Romain).
+
+
+# How to Install these macros :
 * Clone this repo (with git clone for example, or click on the green button <Code>, and then "Download zip", then extract the contents in a folder). 
 
 * Install Fiji https://imagej.net/software/fiji/
@@ -9,28 +16,30 @@ Use these macros :
 
 * Install the plugin ImageJ-ITK. To that end, click in Fiji : Help > Update > and look for ImageJ-ITK. Click on it, then on close, then apply. Then reboot Fiji
 
-
 * Install the plugin Fijiyama. To that end, click in Fiji : Help > Update > then click on the button Add update site, and fill the fields : URL = https://sites.imagej.net/Fijiyama , name= whatever, then check the associated checkbox.
 
   
+# How to prepare your data :
 * Generate a folders arborescence that you will use for the processing. It have to contains empty directories :
 1_Source
-2_CortexRoi
+2_AreaRoi
 3_CellRoi
-4_CellMeasurement
-5_LacunesIndices
+4_LacunesIndices
 
-* Install your images in directory 1_Source
+* Install your images in directory 1_Source.
 
-* Run the macros from Step_1 to Step_7. To run a macro, drag-slide it into Fiji, then click "Run". When asked, select a random image in the directory 1_Source
+# How to Run these macros :
+* Run the macros from Step_1 to Step_8. To run a macro, drag-slide it into Fiji, then click "Run". When asked, select a random image in the directory 1_Source
 
-Step 1 : for each image appearing, use the polygon tool to draw the stele contour, then type "T", then draw the cortex inside contour, then type T
-Step 2 : for each image appearing, use the polygon tool to draw the cortex outside contour, then type T
-Step 3 : verify all your contours. Whenever a contour is not good, note the image name (title), and suppress the corresponding roi in 2_Cortex_Roi. When you will run again the previous step, the macro will only ask you to do the contours you removed
-Step 4 : automatic segmentation
-Step 5 : verify segmentation
-Step 6 : for each lacune, click on it, then type "T". When every lacune is clicked, click on the upper left corner of the image, then "T"
-Step 7 : verify lacunes. Whenever lacunes are not good, note the image name (title), and suppress the corresponding roi in 3_CellRoi. When you will run again the previous step, the macro will only ask you to do the lacune you removed
-Step 8 : compute the summary. Just run the macro as the previous ones. It generates a CSV at the end, right into the main folder of your experiment
-  
+* Step 1 : for each image appearing, use the polygon tool to draw the stele contour, then type "T"
+* Step 2 : for each image appearing, use the polygon tool to draw the cortex inside contour, then type "T"
+* Step 3 : for each image appearing, use the polygon tool to draw the cortex outside contour, then type T
+* Step 4 : verify all your contours. Whenever a contour is not good, note the image name (title), and suppress the corresponding roi in 2_Cortex_Roi. When you will run again the previous step, the macro will only ask you to do the contours you removed
+* Step 5 : automatic segmentation. Just wait and see
+* Step 6 : verify segmentation
+* Step 7 : for each lacune, click on it, then type "T". When every lacune is clicked, click on the upper left corner of the image, then "T". If you mistake a lacune, click on it, then type "T", and it is not anymore a lacune.
+* Step 8 : verify lacunes. Whenever lacunes are not good, note the image name (title), and suppress the corresponding roi in 3_CellRoi. When you will run again the previous step, the macro will only ask you to do the lacune you removed
+* Step 9 : compute the summary. Just run the macro as the previous ones. It generates a CSV at the end, right into the main folder of your experiment. It works only with some filename formats. Sylvie's is : 4_M_I_3_a.tif , and Paola's is 4_A2SB_10.tif . 
+
+Interested in another file name formats ? Just write it down in the Step9 macro (ask to Romain)
 
