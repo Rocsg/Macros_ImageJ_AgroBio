@@ -26,11 +26,16 @@ for (i=0; i<N; i++) {
 	//Open and prepare image
 	print("Toto");
 	prepareImage(dir1+"/"+list[i]);
+	sig=2;
+	/*
 	mag=10;
 	mag=getMagnification();
-	
+	if(mag==20)sig=2;
+	if(mag==10)sig=2;	
 	//radiusStele=radiusSteleStandard*mag;
-
+	*/
+	run("Enhance Local Contrast (CLAHE)", "blocksize=127 histogram=256 maximum=3 mask=*None* fast_(less_accurate)");
+	showMessage("message");
 	//Get cortex area
 	roiManager("open", maindir+"/2_AreaRoi/"+list[i]+"cortex_in.zip");
 	roiManager("Select", 0);
@@ -39,13 +44,16 @@ for (i=0; i<N; i++) {
 	roiManager("open", maindir+"/2_AreaRoi/"+list[i]+"cortex_out.zip");
 	roiManager("Select", 0);
 	run("Clear Outside");
+	showMessage("message");
+//	run("Enhance Contrast", "saturated=1");
+//	run("Apply LUT");
+	showMessage("message");
+	run("Gaussian Blur...", "sigma="+sig);//(mag/6));
+	showMessage("message");
 	cleanRois();
-	run("Enhance Contrast", "saturated=1");
-	run("Apply LUT");
-
-	run("Gaussian Blur...", "sigma="+(mag/6));
 	rename("gauss");
-	run("Find Maxima...", "prominence=3 light output=[Single Points]");
+	run("Find Maxima...", "prominence=1 light output=[Single Points]");//3
+	showMessage("message");
 	rename("marks");
 	run("Marker-controlled Watershed", "input=gauss marker=marks mask=None compactness=0 binary calculate use");
 	rename(list[i]);
@@ -71,6 +79,7 @@ function cleanRois(){
 		roiManager("Deselect");
 		roiManager("Delete");
 	}
+	run("Select None");
 }
 
 function getMagnificationPaula(){

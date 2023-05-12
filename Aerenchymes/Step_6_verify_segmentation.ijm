@@ -17,7 +17,7 @@ run("Close All");
 
 radiusSteleStandard=5;//Measured on a bunch of images
 
-
+run("Colors...", "foreground=white background=black selection=magenta");
 
 
 for (i=0; i<N; i++) {

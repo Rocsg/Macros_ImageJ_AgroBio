@@ -58,6 +58,7 @@ function cleanRois(){
 		roiManager("Deselect");
 		roiManager("Delete");
 	}
+	run("Select None");
 }
 
 

@@ -37,12 +37,31 @@ for (ii=0; ii<N; ii++) {
 	
 	run("Close All");
 	cleanRois();
-
+    squaresize=110;
 	//Prepare results table
 	Table.create("Lacune_indices_"+imgToTry);
 	Table.update();
 	prepareImage(dir1+"/"+imgToTry);
+	setTool("rectangle");
+	makeRectangle(0,0, squaresize, squaresize);
+	setForegroundColor(255, 255, 255);
+	run("Draw", "slice");
+	setTool("text");
+	setFont("SansSerif", 13, " antialiased");
+	setColor("white");
+	drawString("Click here and T\nto finish", 1, 18);
 	prepareImage(dir1+"/"+imgToTry);
+	makeRectangle(0, 0, squaresize, squaresize);
+	setForegroundColor(255, 255, 255);
+	run("Draw", "slice");
+	setTool("text");
+	setFont("SansSerif", 13, " antialiased");
+	setColor("white");
+	drawString("Click here and T\nto finish", 1, 18);
+	run("Synchronize Windows");
+	
+	setTool("point");
+
 	roiManager("open",  dirRoi +"/"+ imgToTry+".zip");
 	roiManager("draw");
 	cleanRois();
@@ -62,7 +81,7 @@ for (ii=0; ii<N; ii++) {
 		
 		tab=getCoordsOfPointInRoi();
 		print(tab[0]+","+tab[1]);
-		if(tab[0]<50 && tab[1]<50)finished=true;
+		if(tab[0]<squaresize && tab[1]<squaresize)finished=true;
 		else{
 			cleanRois();
 			//Find the Roi containing the point clicked by the user
@@ -132,13 +151,15 @@ function cleanRois(){
 		roiManager("Deselect");
 		roiManager("Delete");
 	}
+	run("Select None");
+
 }
 
 
 function prepareImage(path){
 	open(path);
 	//run("8-bit");
-	//run("Enhance Contrast", "saturated=0.02");
+	run("Enhance Local Contrast (CLAHE)", "blocksize=127 histogram=256 maximum=3 mask=*None* fast_(less_accurate)");
 	//run("Apply LUT");
 }
 function getCoordsOfPointInRoi(){

@@ -18,7 +18,7 @@ list = getFileList(dir1);
 N=list.length;
 
 radiusSteleStandard=5;//Measured on a bunch of images
-
+run("Colors...", "foreground=white background=black selection=magenta");
 
 
 
@@ -26,10 +26,13 @@ for (i=0; i<N; i++) {
 	print(i+" "+list[i]);
 	run("Close All");
 	cleanRois();
+	run("Colors...", "foreground=white background=black selection=magenta");
 	//Open and prepare image
 	prepareImage(dir1+"/"+list[i]);
 	roiManager("open", dirRoi +"/"+ list[i]+"cortex_in.zip");
+	run("Colors...", "foreground=white background=black selection=green");
 	roiManager("open", dirRoi +"/"+ list[i]+"cortex_out.zip");
+	run("Colors...", "foreground=white background=black selection=blue");
 	roiManager("open", dirRoi +"/"+ list[i]+"stele_out.zip");
 	roiManager("show all");
 	waitForUser;
@@ -46,6 +49,7 @@ function cleanRois(){
 		roiManager("Deselect");
 		roiManager("Delete");
 	}
+	run("Select None");
 }
 
 function getCoordsOfPointInRoi(path){
