@@ -35,7 +35,6 @@ for (i=0; i<N; i++) {
 	//radiusStele=radiusSteleStandard*mag;
 	*/
 	run("Enhance Local Contrast (CLAHE)", "blocksize=127 histogram=256 maximum=3 mask=*None* fast_(less_accurate)");
-	showMessage("message");
 	//Get cortex area
 	roiManager("open", maindir+"/2_AreaRoi/"+list[i]+"cortex_in.zip");
 	roiManager("Select", 0);
@@ -44,16 +43,12 @@ for (i=0; i<N; i++) {
 	roiManager("open", maindir+"/2_AreaRoi/"+list[i]+"cortex_out.zip");
 	roiManager("Select", 0);
 	run("Clear Outside");
-	showMessage("message");
 //	run("Enhance Contrast", "saturated=1");
 //	run("Apply LUT");
-	showMessage("message");
 	run("Gaussian Blur...", "sigma="+sig);//(mag/6));
-	showMessage("message");
 	cleanRois();
 	rename("gauss");
 	run("Find Maxima...", "prominence=1 light output=[Single Points]");//3
-	showMessage("message");
 	rename("marks");
 	run("Marker-controlled Watershed", "input=gauss marker=marks mask=None compactness=0 binary calculate use");
 	rename(list[i]);
@@ -63,8 +58,40 @@ for (i=0; i<N; i++) {
 	setThreshold(1, 255);
 
 	run("Analyze Particles...", "size=0-Infinity circularity=0-1.00 display clear exclude add");
+
+	n=roiManager('count');
+	roiManager("open", maindir+"/2_AreaRoi/"+list[i]+"cortex_in.zip");
+    ret=0;
+	for (j=n-1; j >=0 ; j--) {		
+	    roiManager('select', j);
+	    Roi.getBounds(x0,y0,X,Y);
+		x_center_n = x0 + X / 2.0; // Calcule la coordonnée X du centre de la ROI numéro n+1
+		y_center_n = y0 + Y / 2.0; // Calcule la coordonnée Y du centre de la ROI numéro n+1
+	    roiManager('select', n-ret);
+	    if(Roi.contains(x_center_n, y_center_n)){
+			roiManager("select", j);
+			roiManager("delete");	 
+			ret=ret+1;   	
+	    }
+	}
+	n=roiManager('count');
+	roiManager("select", n-1);
+	roiManager("delete");	 
+			
+	
 	roiManager("Save", dirRoi +"/"+ list[i]+".zip");		
 
+	n=roiManager('count');
+	run("Select All");
+	roiManager("Combine");
+	roiManager("delete");
+	roiManager("Add");
+	roiManager("Select", 0);
+	run("Convex Hull");
+	roiManager("delete");
+	roiManager("Add");
+	roiManager("Select", 0);
+	roiManager("Save", maindir+"/2_AreaRoi/"+list[i]+"cortex_convexhull.zip");
 	cleanRois();
 	run("Close All");
 }

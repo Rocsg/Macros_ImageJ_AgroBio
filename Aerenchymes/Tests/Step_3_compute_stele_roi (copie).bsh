@@ -1,0 +1,259 @@
+
+package fr.cirad.image.aerenchyme;
+
+import ij.gui.Line;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.opencsv.CSVReader;
+
+import io.github.rocsg.fijiyama.common.Timer;
+import io.github.rocsg.fijiyama.common.VitimageUtils;
+import io.github.rocsg.fijiyama.common.VitiDialogs;
+import ij.IJ;
+import ij.ImageJ;
+import ij.ImagePlus;
+import ij.gui.Roi;
+import ij.plugin.frame.RoiManager;
+import ij.WindowManager;
+import inra.ijpb.binary.geodesic.GeodesicDistanceTransformFloat;
+import inra.ijpb.morphology.Morphology;
+import inra.ijpb.morphology.Strel3D;
+import inra.ijpb.binary.geodesic.GeodesicDistanceTransformFloat;
+import inra.ijpb.morphology.Morphology;
+import inra.ijpb.morphology.Strel3D;
+
+public run(String maindir){
+	System.out.println(maindir);
+	dir1=maindir+"/1_Source";
+	dirRoi=maindir+"/2_AreaRoi";
+	
+	list = new File(dir1).list();
+	int N=list.length;
+	int dil=6;//Eroding 6 pixels from the center line of endoderm, this is the inside limit for the boundary of cortex
+
+	
+	print("Entering loop ");
+	for (int i=0; i<N; i++) {
+		//Open and prepare image
+		print("Starting loop with "+list[i]);
+		if(new File(dirRoi+"/"+list[i]+"stele_out.zip").exists()){
+			System.out.println("Skipping file "+list[i]+"stele_out.zip");
+			continue;
+		}
+		ImagePlus imp=prepareImage(dir1+"/"+list[i]);
+		imp.setTitle("imp");
+		cleanRois();
+
+		//1 - Computing a mask excluding outside of cortex line and inside of cortex line minus 6 pixels
+		ImagePlus mask=imp.duplicate();
+		IJ.open(maindir+"/2_AreaRoi/"+list[i]+"cortex_in.zip");
+		RoiManager rm=RoiManager.getInstance();
+		rm.select(0);
+		IJ.setBackgroundColor(0, 0, 0);
+		IJ.run(mask, "Clear Outside", "");
+		IJ.run(mask, "Fill", "");//Ok
+		cleanRois();
+		rm.reset();
+		mask.show();
+		ImagePlus imp2=erosionCircle2D(mask, dil);
+		ImagePlus maskFinal = ImageCalculator.run(mask, imp2, "XOR create");
+		
+		imp2.hide();
+		imp.show();// Finished : imp2 designate the image of the minimal area of the stele boundary
+		
+		
+		//1 - Computing a watershed based delineation of the stele_out. 
+		//Remove the out of cortex in
+		roiManager("open", maindir+"/2_AreaRoi/"+list[i]+"cortex_in.zip");
+		roiManager("Select", 0);
+		run("Clear Outside", "slice");
+
+		
+	run("Gaussian Blur...", "sigma="+0.7);//(mag/6));
+	cleanRois();
+	cleanRois();
+	rename("gauss");
+	
+	run("Find Maxima...", "prominence=1 light output=[Single Points]");//3
+	rename("marks");
+	run("Marker-controlled Watershed", "input=gauss marker=marks mask=None compactness=0 binary calculate use");
+	setMinAndMax("0.50", "0.50");
+	setOption("ScaleConversions", true);
+	run("8-bit");
+	setThreshold(1, 255);
+
+	cleanRois();
+	run("Analyze Particles...", "size=0-Infinity circularity=0-1.00 display clear add");
+	roiManager("Select", 0);
+	roiManager("delete");
+	roiManager("combine");
+	roiManager("delete");
+	roiManager("add");
+	roiManager("Select", 0);
+	run("Fill", "slice");
+	roiManager("delete");
+	cleanRois();
+	run("Invert");
+
+		
+		
+
+		
+		
+		
+		
+		
+		IJ.run("Create Selection");
+		rm.runCommand("Add");
+		rm.select(0);		
+		rm.runCommand("save selected", maindir+"/2_AreaRoi/"+list[i]+"stele_out.zip");			
+		cleanRois();
+		IJ.run("Close All");
+
+
+
+		
+	}
+}
+
+	public static double getMagnification(String path) {
+		ImagePlus img=IJ.openImage(path);
+		double d=0;
+		if(img.getInfoProperty().split("Objective Correction").length>1) {
+			d=Double.parseDouble( img.getInfoProperty().split("Objective Correction")[1].split("NominalMagnification")[1].split("\"")[1]);
+			System.out.println("Detected : "+d);
+			return d;
+		}
+		else d=20;
+		System.out.println("Guessed : "+d);
+		return d;
+	}
+	
+	public static ImagePlus dilationCircle2D(ImagePlus img, int radius) {
+		Strel3D str2=null;
+		str2=inra.ijpb.morphology.strel.DiskStrel.fromRadius(radius);
+		return new ImagePlus("",Morphology.dilation(img.getImageStack(),str2));
+	}
+	
+	public static ImagePlus erosionCircle2D(ImagePlus img, int radius) {
+		Strel3D str2=null;
+		str2=inra.ijpb.morphology.strel.DiskStrel.fromRadius(radius);
+		return new ImagePlus("",Morphology.erosion(img.getImageStack(),str2));
+	}
+	
+
+// Pieces of macros for RootCell treatments.
+
+
+/*
+
+	run("Find Maxima...", "prominence=1 light output=[Single Points]");//3
+	rename("marks");
+	run("Marker-controlled Watershed", "input=gauss marker=marks mask=None compactness=0 binary calculate use");
+	setMinAndMax("0.50", "0.50");
+	setOption("ScaleConversions", true);
+	run("8-bit");
+	setThreshold(1, 255);
+
+	cleanRois();
+	run("Analyze Particles...", "size=0-Infinity circularity=0-1.00 display clear add");
+	roiManager("Select", 0);
+	roiManager("delete");
+	roiManager("combine");
+	roiManager("delete");
+	roiManager("add");
+	roiManager("Select", 0);
+	run("Fill", "slice");
+	roiManager("delete");
+	cleanRois();
+	run("Invert");
+	for (k = 1; k < 8; k++) {
+		print(i);
+		//Opening
+		for (j = 0; j < k; j++) {
+			run("Erode");
+		}
+		for (j = 0; j < k; j++) {
+			run("Dilate");
+		}
+		//Closure
+		for (j = 0; j < k; j++) {
+			run("Dilate");
+		}
+		for (j = 0; j < k; j++) {
+			run("Erode");
+		}
+	}
+	// get active image
+// get image height
+	height = getHeight();
+	width = getWidth();
+	makeRectangle(50, 50, width, height);
+	run("Clear Outside", "slice");
+
+	run("Create Selection");
+	roiManager("Add");
+	roiManager("Select", 0);
+	
+	roiManager("save selected", maindir+"/2_AreaRoi/"+list[i]+"stele_out.zip");			
+		
+	cleanRois();
+	run("Close All");
+}
+*/
+//Handle data and datapath
+
+
+public void cleanRois(){
+	RoiManager rm=RoiManager.getRoiManager();
+	rm.deselect();
+	rm.reset();
+}
+
+
+public ImagePlus prepareImage(path){
+	ImagePlus img=IJ.openImage(path);
+	img.show();
+	IJ.run("8-bit");
+	IJ.run("Enhance Local Contrast (CLAHE)", "blocksize=40 histogram=256 maximum=3 mask=*None* fast_(less_accurate)");
+	return img;
+//	run("8-bit");
+//	run("Enhance Contrast", "saturated=0.35");
+//	run("Apply LUT");
+}
+
+
+
+
+
+
+
+
+
+
+
+
+	
+IJ.run("Close All");
+cleanRois();
+//setTool("oval");
+IJ.showMessage("Click ok and wait. If you are epilleptic, beware of the screen\nTime estimated : 3 s per image");
+IJ.showMessage("First, select an image in the 1_Source directory\nSelect any image, whatever, it is just used to find the parent folder.\nThe images which already have a stele_out contour in 2_AreaRoi won t be displayed");
+
+String path=VitiDialogs.chooseOneImageUIPath("Select an image","an image");
+String dirName=new File(new File(path).getParent() ).getParent();
+System.out.println(dirName);
+run(dirName);
+ 	
+
+IJ.showMessage("finished");
+
+
+
+/*		
+*/

@@ -52,6 +52,8 @@ for (i=0; i<N; i++) {
 	}
 	Table.setLocationAndSize(0,0,100,100);
 	cleanRois();
+	roiManager("show none");
+	run("Synchronize Windows");
 	waitForUser;
 }
 

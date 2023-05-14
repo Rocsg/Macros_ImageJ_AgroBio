@@ -27,6 +27,7 @@ for (i=0; i<N; i++) {
 	//Open and prepare image
 	prepareImage(dir1+"/"+list[i]);
 	roiManager("open", dirRoi +"/"+ list[i]+".zip");
+	roiManager("open", maindir+"/2_AreaRoi" +"/"+ list[i]+"cortex_convexhull.zip");
 	roiManager("show all");
 	waitForUser;
 }

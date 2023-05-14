@@ -1,0 +1,382 @@
+//Bug 13MA3c
+//34 M I 3 a
+//Pas de cortex
+package fr.cirad.image.aerenchyme;
+
+import ij.gui.Line;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
+import com.opencsv.CSVReader;
+
+import io.github.rocsg.fijiyama.common.Timer;
+import io.github.rocsg.fijiyama.common.VitimageUtils;
+import io.github.rocsg.fijiyama.common.VitiDialogs;
+import ij.IJ;
+import ij.ImageJ;
+import ij.ImagePlus;
+import ij.gui.Roi;
+import ij.plugin.frame.RoiManager;
+import ij.WindowManager;
+import inra.ijpb.binary.geodesic.GeodesicDistanceTransformFloat;
+import inra.ijpb.morphology.Morphology;
+import inra.ijpb.morphology.Strel3D;
+import inra.ijpb.binary.geodesic.GeodesicDistanceTransformFloat;
+import inra.ijpb.morphology.Morphology;
+import inra.ijpb.morphology.Strel3D;
+import ij.plugin.ImageCalculator;
+
+public run(String maindir){
+	System.out.println(maindir);
+	dir1=maindir+"/1_Source";
+	dirRoi=maindir+"/2_AreaRoi";
+	
+	list = new File(dir1).list();
+	int N=list.length;
+	int dil=10;//Eroding 6 pixels from the center line of endoderm, this is the inside limit for the boundary of cortex
+
+	
+	print("Entering loop ");
+	for (int i=0; i<N; i++) {
+		//Open and prepare image
+		print("Starting loop with "+list[i]);
+		if(new File(dirRoi+"/"+list[i]+"stele_out.zip").exists() && new File(dirRoi+"/"+list[i]+"cortex_in.zip").exists()){
+			System.out.println("Skipping file "+list[i]+"");
+			continue;
+		}
+		ImagePlus imp=prepareImage(dir1+"/"+list[i]);
+		imp.setTitle("imp");
+		cleanRois();
+
+		//1 - Computing and apply a mask excluding outside of cortex line and inside of cortex line minus 6 pixels
+		ImagePlus mask=imp.duplicate();
+		mask.show();
+		IJ.open(maindir+"/2_AreaRoi/"+list[i]+"endoderm.zip");
+		RoiManager rm=RoiManager.getInstance();
+		rm.select(0);
+		IJ.setBackgroundColor(0, 0, 0);
+		IJ.run(mask, "Clear Outside", "");
+		IJ.run(mask, "Fill", "");//Ok
+		cleanRois();
+		rm.reset();
+		mask.show();
+		ImagePlus imp2=erosionCircle2D(mask, dil);
+		ImagePlus maskFinal = new ImageCalculator().run(mask, imp2, "XOR create");
+		IJ.run(maskFinal, "Divide...", "value=255");
+		ImagePlus imp3 = new ImageCalculator().run(maskFinal, imp, "Multiply create");
+		
+		maskFinal.changes=false;
+		maskFinal.close();
+		mask.changes=false;
+		mask.close();
+		imp2.changes=false;
+		imp2.close();
+		imp.changes=false;
+		imp.close();		
+		imp3.changes=false;
+		imp3.show();
+//		IJ.showMessage("Image annelée");
+
+		
+		//2 - Computing a watershed based delineation of the stele_out. 
+		cleanRois();
+		rm.reset();
+		IJ.run("Gaussian Blur...", "sigma="+1);//(mag/6));
+		ImagePlus gauss=IJ.getImage();
+		gauss.setTitle("gauss");
+
+		IJ.run(gauss, "Find Maxima...", "prominence=1 light output=[Single Points]");
+		IJ.run(gauss, "Marker-controlled Watershed", "input=gauss marker=[gauss Maxima] mask=None compactness=0 binary calculate use");
+		ImagePlus watershed=IJ.getImage();
+//		IJ.showMessage("Resulting watershed");
+		watershed.setDisplayRange(0.50, 0.50);
+		IJ.run("8-bit");
+		IJ.setThreshold(1, 255);	
+		cleanRois();
+		IJ.run("Analyze Particles...", "size=0-Infinity circularity=0-1.00 display clear add");
+		IJ.run(watershed, "Select All", "");
+		IJ.setBackgroundColor(0, 0, 0);
+		IJ.run(watershed, "Clear", "slice");
+		IJ.run(watershed, "Clear Outside", "");
+		double min_x=100000;
+		int ind_max=0;
+		for(int j=0;j<rm.getCount();j++){
+			Roi r=rm.getRoi(j);
+			if(r.getBounds().getX()<min_x){
+				min_x=r.getBounds().getX();
+				ind_max=j;
+			}
+		}
+		//IJ.showMessage("2, found max="+ind_max+" over "+rm.getCount()+" rois");
+		int n=rm.getCount();
+		for(int j=n-1;j>=0;j--){
+			rm.select(j);
+			if(j!=ind_max){
+				IJ.run(watershed, "Fill", "");//Ok
+			}
+		}
+		rm.reset();
+		
+		ImagePlus imgFull=dilationCircle2D(watershed, 7);
+		ImagePlus imgFull2=erosionCircle2D(imgFull, 6);
+		imgFull2.show();
+		rm.runCommand("Deselect");
+		cleanRois();
+		rm.reset();
+
+		IJ.run("Create Selection");
+		IJ.run(imgFull2, "Make Inverse", "");
+		rm.runCommand("Add");
+		rm.select(0);		
+		rm.runCommand("save selected", maindir+"/2_AreaRoi/"+list[i]+"stele_out.zip");			
+		cleanRois();
+		IJ.run("Close All");
+
+		
+/*		IJ.showMessage("At the end, n="+rm.getCount());
+		VitimageUtils.waitFor(50000);
+		rm.select(0);
+		IJ.run(watershed, "Make Inverse", "");
+		rm.runCommand("Add");
+		rm.select(0);
+		rm.runCommand("delete");
+		rm.select(0);
+		IJ.showMessage("At the second end, n="+rm.getCount());
+
+		ImagePlus test=gauss.duplicate();
+		test.show();
+		IJ.run("8-bit","");
+		IJ.setBackgroundColor(0, 0, 0);
+		IJ.run(test, "Clear", "");
+		IJ.run(test, "Clear Outside", "");
+		IJ.run(test, "Fill", "");//Ok
+		IJ.showMessage("Is it good ?");
+		IJ.showMessage("4");*/
+/*
+		ImagePlus imgFin=gauss.duplicate();
+		imgFin.show();
+		rm.select(0);
+		IJ.run(imgFin, "Clear Outside", "");
+		IJ.run(imgFin, "Clear", "");
+	    rm.select(0); // Sélectionne la première ROI
+	    rm.runCommand("Delete"); // Supprime la ROI sélectionnée
+		if(rm.getCount()>1){
+			rm.runCommand("Combine");
+			rm.reset();
+		}
+		else{
+			rm.select(0);
+		}
+		IJ.run(imgFin, "Fill", "");		
+		rm.runCommand("Deselect");
+		
+		roi = imgFin.getRoi(); // Récupère la ROI actuellement sélectionnée sur l'image active
+
+		if (roi != null) {
+    	// Supprime la ROI de l'image
+    		rm.runCommand("delete");
+		}
+		cleanRois();
+		rm.reset();
+		*/
+				//3 - Save the result
+//		IJ.showMessage("Resulting area to save");
+
+
+
+
+
+
+
+
+
+		//4 - Computing and apply a mask excluding inside of cortex line and outside of cortex line plus 12 pixels
+		dil=12;
+		RoiManager rm=RoiManager.getInstance();
+		ImagePlus imp=prepareImage(dir1+"/"+list[i]);
+		ImagePlus mask=imp.duplicate();
+		mask.show();
+		mask.setTitle("mask");
+		IJ.selectWindow("mask");
+		IJ.open(maindir+"/2_AreaRoi/"+list[i]+"endoderm.zip");
+		rm.select(0);
+		IJ.setBackgroundColor(0, 0, 0);
+		IJ.run(mask, "Clear", "");
+		IJ.run(mask, "Make Inverse", "");
+		IJ.run(mask, "Fill", "");//Ok
+		cleanRois();
+		rm.reset();
+		mask.show();
+		//VitimageUtils.waitFor(10000);
+		ImagePlus imp2=erosionCircle2D(mask, dil);
+		ImagePlus maskFinal = new ImageCalculator().run(mask, imp2, "XOR create");
+		IJ.run(maskFinal, "Divide...", "value=255");
+		ImagePlus imp3 = new ImageCalculator().run(maskFinal, imp, "Multiply create");
+		
+		maskFinal.changes=false;
+		maskFinal.close();
+		mask.changes=false;
+		mask.close();
+		imp2.changes=false;
+		imp2.close();
+		imp.changes=false;
+		imp.close();		
+		imp3.changes=false;
+		imp3.show();
+		//VitimageUtils.waitFor(10000);
+//		IJ.showMessage("Image annelée");
+
+		
+		//5 - Computing a watershed based delineation of the stele_out. 
+		cleanRois();
+		rm.reset();
+		IJ.run("Gaussian Blur...", "sigma="+1);//(mag/6));
+		ImagePlus gauss=IJ.getImage();
+		gauss.setTitle("gauss");
+
+		IJ.run(gauss, "Find Maxima...", "prominence=1 light output=[Single Points]");
+		IJ.run(gauss, "Marker-controlled Watershed", "input=gauss marker=[gauss Maxima] mask=None compactness=0 binary calculate use");
+		ImagePlus watershed=IJ.getImage();
+		//VitimageUtils.waitFor(10000);
+//		IJ.showMessage("Resulting watershed");
+		watershed.setDisplayRange(0.50, 0.50);
+		IJ.run("8-bit");
+		IJ.setThreshold(1, 255);	
+		cleanRois();
+		IJ.run("Analyze Particles...", "size=0-Infinity circularity=0-1.00 display exclude clear add");
+
+		//Keep only the roi which center lies in endoderm
+		int n=rm.getCount();
+		//IJ.showMessage("Particles analyszed : n="+n);
+
+
+		
+
+
+
+
+
+		IJ.open(maindir+"/2_AreaRoi/"+list[i]+"endoderm.zip");
+		Roi cortex=rm.getRoi(n);
+		//IJ.showMessage("At start, there is "+rm.getCount());
+		for (int j=n-1; j >=0 ; j--) {		
+			//IJ.showMessage("Starting iter ("+j+")");
+			Roi rTest=rm.getRoi(j);
+			rm.select(j);
+		    // Get the bounds of the ROI
+			Rectangle bounds = rTest.getBounds();			
+			// Calculate the center coordinates
+			double x_center_n = bounds.getX() + bounds.getWidth() / 2.0;
+			double y_center_n = bounds.getY() + bounds.getHeight() / 2.0;
+			double cort_x=cortex.getBounds().getX()+cortex.getBounds().getWidth()/2;
+			double cort_y=cortex.getBounds().getY()+cortex.getBounds().getHeight()/2;
+			//IJ.showMessage("Testing roi center "+x_center_n+","+y_center_n+"over roi "+cort_x+","+cort_y);
+		    if(  ( (x_center_n-cort_x)*(x_center_n-cort_x)+(y_center_n-cort_y)*(y_center_n-cort_y) ) > (50*50) ){
+				rm.select(j);
+    			rm.runCommand("delete");
+		    }
+			IJ.showMessage(" finished with "+rm.getCount());
+		}
+		n=rm.getCount();
+		//IJ.showMessage("Number of roi still there = "+n);
+		rm.select(1);
+		rm.runCommand("delete");
+		//IJ.showMessage("cortex_in ?");		
+		//VitimageUtils.waitFor(10000);
+
+		rm.select(0);		
+		rm.runCommand("save selected", maindir+"/2_AreaRoi/"+list[i]+"cortex_in.zip");			
+		cleanRois();
+		IJ.run("Close All");
+		
+		
+		
+		cleanRois();
+		IJ.run("Close All");
+
+
+
+
+		
+	}
+}
+
+public static double getMagnification(String path) {
+	ImagePlus img=IJ.openImage(path);
+	double d=0;
+	if(img.getInfoProperty().split("Objective Correction").length>1) {
+		d=Double.parseDouble( img.getInfoProperty().split("Objective Correction")[1].split("NominalMagnification")[1].split("\"")[1]);
+		System.out.println("Detected : "+d);
+		return d;
+	}
+	else d=20;
+	System.out.println("Guessed : "+d);
+	return d;
+}
+
+public static ImagePlus dilationCircle2D(ImagePlus img, int radius) {
+	Strel3D str2=null;
+	str2=inra.ijpb.morphology.strel.DiskStrel.fromRadius(radius);
+	return new ImagePlus("",Morphology.dilation(img.getImageStack(),str2));
+}
+
+public static ImagePlus erosionCircle2D(ImagePlus img, int radius) {
+	Strel3D str2=null;
+	str2=inra.ijpb.morphology.strel.DiskStrel.fromRadius(radius);
+	return new ImagePlus("",Morphology.erosion(img.getImageStack(),str2));
+}
+
+
+
+
+
+
+
+public void cleanRois(){
+	RoiManager rm=RoiManager.getRoiManager();
+	rm.deselect();
+	rm.reset();
+}
+
+
+public ImagePlus prepareImage(path){
+	ImagePlus img=IJ.openImage(path);
+	img.show();
+	IJ.run("8-bit");
+	IJ.run("Enhance Local Contrast (CLAHE)", "blocksize=40 histogram=256 maximum=3 mask=*None* fast_(less_accurate)");
+	return img;
+	//	run("8-bit");
+	//	run("Enhance Contrast", "saturated=0.35");
+	//	run("Apply LUT");
+}
+
+
+
+
+
+
+
+
+
+
+
+
+	
+IJ.run("Close All");
+cleanRois();
+//setTool("oval");
+IJ.showMessage("Click ok and wait. If you are epilleptic, beware of the screen\nTime estimated : 3 s per image");
+//IJ.showMessage("First, select an image in the 1_Source directory\nSelect any image, whatever, it is just used to find the parent folder.\nThe images which already have a stele_out contour in 2_AreaRoi won t be displayed");
+
+String path=VitiDialogs.chooseOneImageUIPath("Select an image","an image");
+String dirName=new File(new File(path).getParent() ).getParent();
+System.out.println(dirName);
+run(dirName);
+ 	
+
+IJ.showMessage("finished");
+
+

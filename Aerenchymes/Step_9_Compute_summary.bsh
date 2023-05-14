@@ -21,26 +21,37 @@ import ij.WindowManager;
 	
 	
 	public static void computeSummaryOfLacuneData(String dirExp,String pathToOutputCsv,boolean newWay) {
-		boolean isPaula=VitiDialogs.getYesNoUI("","Are you Paula ?");
-		
+		int typePaula=1;
+		int typeSergi=0;
+		int typePheno=2;
+		int typeThis=typeSergi;
 		String dirSource=new File(dirExp,"1_Source").getAbsolutePath();
 		String dirRoi=new File(dirExp,"3_CellRoi").getAbsolutePath();
 		String dirCortex=new File(dirExp,"2_AreaRoi").getAbsolutePath();
 		String dirLac=new File(dirExp,"4_LacunesIndices").getAbsolutePath();
 		String[]imgNames=new File(dirSource).list();
+		typeThis=determineProvider(imgNames);
+
 		ArrayList<String>ar=new ArrayList<String>();
 		for(String s:imgNames)ar.add(s);
 		ar.sort(null);
 		int N=ar.size();
-		String[][]finalTab=new String[N+1][4];
-		finalTab[0]=new String[] {"0_PARAM_ImgName","1_PARAM_INFO","2_PARAM_Geno","3_PARAM_Management","4_PARAM_Depth","5_PARAM_Repetition","6_PARAM_Magnification","7_PHENE_cortex_surf(pix)","8_PHENE_stele_surf(pix)","9_PHENE_lacune_surf(pix)","10_PHENE_lacune_ratio(percent)"};
+		String[][]finalTab=new String[N+1][14];
+		//"7_MEASURE_total_cortex_surface",
+		//"8_MEASURE_strict_stele_surface_without_endoderm",
+		//"9_MEASURE_endoderm_surface",
+		//"10_MEASURE_imaged_cortex_surface",
+		//"11_MEASURE_imaged_lacune_surface",
+		//"12_COMPUTED_ratio_lacune_over_imaged_cortex",
+		//"13_COMPUTED_Full_cortex_over_strict_stele_ratio"}
+		finalTab[0]=new String[] {"0_PARAM_ImgName","1_PARAM_INFO","2_PARAM_Geno","3_PARAM_Management","4_PARAM_Depth","5_PARAM_Repetition","6_PARAM_Magnification","7_MEASURED_total_cortex_surface","8_MEASURED_strict_stele_surface_without_endoderm","9_MEASURED_endoderm_surface","10_MEASURED_lacune_and_cytoplasms_surface","11_MEASURED_lacune_surface","12_COMPUTED_lacune_ratio_percent","13_COMPUTED_cortex_over_stele_ratio"};
 		Timer t=new Timer();
 		for(int i=0;i<N;i++) {
-			String[]tab=new String[11];
+			String[]tab=new String[14];
 			tab[0]=ar.get(i);
 			tab[1]="No info";
 			String baseName=ar.get(i).split(".tif")[0];
-			IJ.log("\n"+i+" / "+N+" processing "+baseName);
+			IJ.log("Image "+i+" / "+N+" = "+baseName);
 	
 			if(!new File(dirLac,baseName+".tif.csv").exists()){
 				tab[1]="Lacune annotations were not provided";
@@ -49,7 +60,7 @@ import ij.WindowManager;
 				finalTab[i+1]=tab;
 				continue;
 			}
-			if(!isPaula){
+			if(typeThis==typePheno){
 				tab[2]=baseName.split("_")[0];//Geno
 				tab[3]=baseName.split("_")[1+(newWay ? 1 : 0)];//Management
 				tab[4]=baseName.split("_")[2+(newWay ? 1 : 0)];//Depth
@@ -57,7 +68,7 @@ import ij.WindowManager;
 				tab[6]=""+getMagnification(dirSource+"/"+baseName+".tif");//Magnification
 
 			}
-			else{
+			if(typeThis==typePaola){
 				//      5_   A     2         S     B        _10
 				//all	Geno Man Repetroot Type Position RepetSlice  
 			    //0     2    3       5a          4          5b
@@ -74,15 +85,24 @@ import ij.WindowManager;
 				tab[5]="Root-"+bl1.charAt(1)+"_Slice-"+bl2;//Repet
 				tab[6]="10x(guessed)";//Magnification
 			}
+			if(typeThis==typeSergi){
+				tab[1]="No info";
+				tab[2]="No info";//Geno
+				tab[3]="No info";//Management
+				tab[4]="No info";//Depth
+				tab[5]=baseName;//Repet
+				tab[6]=""+getMagnification(dirSource+"/"+baseName+".tif");//Magnification
+			}
 
-			double totCortex=0;
-			double totLacune=0;
-			
+
+			//"10_MEASURE_imaged_cortex_surface"
+			//"11_MEASURE_imaged_lacune_surface"
+			double imagedCortex=0;
+			double imagedLacune=0;
 			ImagePlus img=IJ.openImage(dirSource+"/"+baseName+".tif");			
 			IJ.open(dirRoi+"/"+baseName+".tif.zip");
 			RoiManager rm=RoiManager.getInstance();
 			int nR=rm.getCount();
-
 			boolean []isLacune=new boolean[nR];
 			String[][]tabLac=VitimageUtils.readStringTabFromCsv(dirLac+"/"+baseName+".tif.csv");
 			for(int l=1;l<tabLac.length;l++) {
@@ -97,36 +117,48 @@ import ij.WindowManager;
 			for(int r=0;r<nR;r++) {
 				totNbCell++;
 				double surf=getRoiSurface(rm.getRoi(r));
-				totCortex+=surf;
+				imagedCortex+=surf;
 				if(isLacune[r]) {
-					totLacune+=surf;
+					imagedLacune+=surf;
 					totNbLac++;
 				}
-				//System.out.println("After roi "+r+" totCortex="+totCortex+" lacune="+totLacune);
 			}
+			tab[10]=""+(imagedCortex);
+			tab[11]=""+imagedLacune;		
+
 			
-			
+			//"7_MEASURE_total_cortex_surface"
+			//"8_MEASURE_strict_stele_surface_without_endoderm"
+			//"9_MEASURE_endoderm_surface"
 			rm.reset();
 			IJ.open(dirCortex+"/"+baseName+".tifstele_out.zip");
-			double surfIn=getRoiSurface(rm.getRoi(0));
-			//IJ.open(dirCortex+"/"+baseName+".tifcortex_out.zip");
-			//double surfOut=VitimageUtils.getRoiSurface(rm.getRoi(1));
-			tab[7]=""+(totCortex);
-			tab[8]=""+(surfIn);
-			tab[9]=""+totLacune;
-			System.out.println("\n"+baseName+"Coucou, j'ai calcule ca : ");
-			System.out.println("Tot nb Cell="+totNbCell);
-			System.out.println("Tot nb Lacune="+totNbLac);
-			System.out.println("Surf tot cell="+totCortex);
-			System.out.println("Surf tot lacune="+totLacune);
-			if(totLacune>totCortex) {
-				System.out.println("WARNING  ! BIG PROBLEM \n\n\nWARNING BIG PRROBLEM\n\n");
+			double strictStele=getRoiSurface(rm.getRoi(0));
+			rm.reset();
+
+			IJ.open(dirCortex+"/"+baseName+".tifcortex_in.zip");
+			double cortexIn=getRoiSurface(rm.getRoi(0));
+			rm.reset();
+
+			IJ.open(dirCortex+"/"+baseName+".tifcortex_convexhull.zip");
+			double cortexEndodermAndStele=getRoiSurface(rm.getRoi(0));
+			rm.reset();
+
+			tab[7]=""+(cortexEndodermAndStele-cortexIn);
+			tab[8]=""+(strictStele);
+			tab[9]=""+(cortexIn-strictStele);
+
+			if(imagedLacune > imagedCortex) {
+				IJ.log("WARNING  ! BIG PROBLEM \n\n\nWARNING BIG PRROBLEM\n\n");
 				VitimageUtils.waitFor(10000);
 			}
-			tab[10]=""+dou(100*totLacune/(totCortex));
+
+			//"12_COMPUTED_ratio_lacune_over_imaged_cortex"
+			//"13_COMPUTED_Full_cortex_over_strict_stele_ratio"
+
+			tab[12]=""+dou(100*imagedLacune/(imagedCortex));
+			tab[13]=""+dou((cortexEndodermAndStele-cortexIn)/(strictStele));
 			finalTab[i+1]=tab;
 			rm.reset();
-		
 		}
 		writeStringTabInCsv2(finalTab, pathToOutputCsv);
 		IJ.showMessage("Finished!");
@@ -191,10 +223,46 @@ import ij.WindowManager;
 		return d;
 	}
 
+	public static int determineProvider(String[]tab){
+		String str=tab[0].replace(".tif","");
+		//Paola=at least 8 caracters
+		//If so, test if there is two occurences of underscore
+		//if so, test if between the two underscore there is 4 caracters
+		if( (str.length()>=8) && (str.split("_").length==3) && (str.split("_")[1].length()==4) ) return 1; //Paola
+		
+		//Pheno=at least 9 caracters		
+		//If so, test if there is 4 underscores
+		//If so, test if the second and third compartment have exactly one caracter
+		if( (str.length()>=9) && (str.split("_").length==5) && (str.split("_")[1].length()==1) && (str.split("_")[2].length()==1) ) return 2; //Pheno
+
+		return 0; //default=Sergi
+	}
+
+
+
+	public static test(){
+		String []namesPaola=new String[]{"1_ASDE_10.tif"};
+		String []namesPaola2=new String[]{"1_ASDE_10.tif","A_ASDE_3.tif"};
+		String []namesSergi=new String[]{"bla.tif"};
+		String []namesSergi2=new String[]{"bla.tif","1.tif","trucmuche_de_ouf-avec-des-car.tif"};
+		String []namesPheno=new String[]{"13_M_I_10_a.tif"};
+		String []namesPheno2=new String[]{"13_M_I_10_a.tif","2_M_I_3_a.tif","202_M_I_3_a.tif"};
+		IJ.log("Paola 1 = "+determineProvider(namesPaola));
+		IJ.log("Paola 2 = "+determineProvider(namesPaola2));
+		IJ.log("Sergi 1 = "+determineProvider(namesSergi));
+		IJ.log("Sergi 2 = "+determineProvider(namesSergi2));
+		IJ.log("Pheno 1 = "+determineProvider(namesPheno));
+		IJ.log("Pheno 2 = "+determineProvider(namesPheno2));
+	}
+
+
+
+
 	String path=VitiDialogs.chooseOneImageUIPath("Select an image","an image");
     String dirName=new File(new File(path).getParent() ).getParent();
 	System.out.println(dirName);
 	computeSummaryOfLacuneData(dirName,dirName+"/Results_aerenchyme_measurements.csv",true);
+//	test();
  
 	//String dirExp="/home/rfernandez/Bureau/A_Test/Aerenchyme/Benoit_Exp7_E7";	
 	//computeSummaryOfLacuneData(dirExp,dirExp+"/Results_aerenchyme_measurements.csv",true);

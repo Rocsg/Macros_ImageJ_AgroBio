@@ -40,6 +40,7 @@ for (ii=0; ii<N; ii++) {
     squaresize=110;
 	//Prepare results table
 	Table.create("Lacune_indices_"+imgToTry);
+	Table.setLocationAndSize(0, 0, 100,100);
 	Table.update();
 	prepareImage(dir1+"/"+imgToTry);
 	setTool("rectangle");

@@ -3,7 +3,7 @@ run("Close All");
 cleanRois();
 setTool("oval");
 showMessage("Use the Polygon Roi tool to connect all the cell centers of the endoderm.\nTime estimated : 1 mn per image");
-showMessage("First, select an image in the 1_Source directory\nSelect any image, whatever, it is just used to find the parent folder.\nThe images which already have a cortex_in contour in 2_AreaRoi won t be displayed");
+showMessage("First, select an image in the 1_Source directory\nSelect any image, whatever, it is just used to find the parent folder.\nThe images which already have a endoderm contour in 2_AreaRoi won t be displayed");
 
 //Handle data and datapath
 open();
@@ -28,8 +28,8 @@ print("Entering loop ");
 for (i=0; i<N; i++) {
 	//Open and prepare image
 	print("Starting loop with "+list[i]);
-	if(File.exists(dirRoi+"/"+list[i]+"cortex_in.zip")){
-		print("Skipping file "+list[i]+"cortex_in.zip");
+	if(File.exists(dirRoi+"/"+list[i]+"endoderm.zip")){
+		print("Skipping file "+list[i]+"endoderm.zip");
 		continue;
 	}
 	prepareImage(dir1+"/"+list[i]);
@@ -44,7 +44,7 @@ for (i=0; i<N; i++) {
 		wait(100);
 		numberOfRoi=roiManager("count");
 	}
-	roiManager("Save", maindir+"/2_AreaRoi/"+list[i]+"cortex_in.zip");			
+	roiManager("Save", maindir+"/2_AreaRoi/"+list[i]+"endoderm.zip");			
 	cleanRois();
 	run("Close All");
 }
