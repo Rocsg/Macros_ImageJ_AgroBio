@@ -54,6 +54,7 @@ function cleanRois(){
 
 function prepareImage(path){
 	open(path);
+	run("Enhance Local Contrast (CLAHE)", "blocksize=80 histogram=256 maximum=3 mask=*None* fast_(less_accurate)");
 	//run("8-bit");
 	//run("Enhance Contrast", "saturated=0.02");
 	//run("Apply LUT");

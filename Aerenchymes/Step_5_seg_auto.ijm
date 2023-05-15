@@ -32,7 +32,7 @@ for (i=0; i<N; i++) {
 	*/
 	run("Enhance Local Contrast (CLAHE)", "blocksize=127 histogram=256 maximum=3 mask=*None* fast_(less_accurate)");
 	//Get cortex area
-	roiManager("open", maindir+"/2_AreaRoi/"+list[i]+"stele_out.zip");
+	roiManager("open", maindir+"/2_AreaRoi/"+list[i]+"endoderm.zip");
 	roiManager("Select", 0);
 	run("Clear", "slice");
 	cleanRois();

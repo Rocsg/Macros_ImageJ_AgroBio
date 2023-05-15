@@ -379,7 +379,7 @@ cleanRois();
 //setTool("oval");
 IJ.showMessage("Click ok and wait. If you are epilleptic, beware of the screen\nTime estimated : 3 s per image");
 
-String dirName=getDirBeanshell()
+String dirName=getDirBeanshell();
 run(dirName);
  	
 
