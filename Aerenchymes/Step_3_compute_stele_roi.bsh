@@ -278,7 +278,7 @@ public run(String maindir){
 				rm.select(j);
     			rm.runCommand("delete");
 		    }
-			IJ.showMessage(" finished with "+rm.getCount());
+			//IJ.showMessage(" finished with "+rm.getCount());
 		}
 		n=rm.getCount();
 		//IJ.showMessage("Number of roi still there = "+n);
@@ -303,7 +303,16 @@ public run(String maindir){
 		
 	}
 }
-
+public String getDirBeanshell(){
+	s1=IJ.getDirectory("imagej")+"macros/pathProcessing.txt";
+	BufferedReader reader = new BufferedReader(new FileReader(s1));
+	String line = reader.readLine();
+	reader.close();
+	s2=line.split("\n")[0];
+	s3=s2.split("\r\n")[0];
+	s4=s3.split("\r")[0];
+	return s4;
+}
 public static double getMagnification(String path) {
 	ImagePlus img=IJ.openImage(path);
 	double d=0;
@@ -369,11 +378,8 @@ IJ.run("Close All");
 cleanRois();
 //setTool("oval");
 IJ.showMessage("Click ok and wait. If you are epilleptic, beware of the screen\nTime estimated : 3 s per image");
-//IJ.showMessage("First, select an image in the 1_Source directory\nSelect any image, whatever, it is just used to find the parent folder.\nThe images which already have a stele_out contour in 2_AreaRoi won t be displayed");
 
-String path=VitiDialogs.chooseOneImageUIPath("Select an image","an image");
-String dirName=new File(new File(path).getParent() ).getParent();
-System.out.println(dirName);
+String dirName=getDirBeanshell()
 run(dirName);
  	
 

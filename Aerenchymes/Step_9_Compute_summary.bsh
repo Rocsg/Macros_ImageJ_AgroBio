@@ -25,12 +25,16 @@ import ij.WindowManager;
 		int typeSergi=0;
 		int typePheno=2;
 		int typeThis=typeSergi;
+		IJ.log(dirExp);
 		String dirSource=new File(dirExp,"1_Source").getAbsolutePath();
 		String dirRoi=new File(dirExp,"3_CellRoi").getAbsolutePath();
 		String dirCortex=new File(dirExp,"2_AreaRoi").getAbsolutePath();
 		String dirLac=new File(dirExp,"4_LacunesIndices").getAbsolutePath();
 		String[]imgNames=new File(dirSource).list();
 		typeThis=determineProvider(imgNames);
+		IJ.log("Type="+typeThis);
+		
+		
 
 		ArrayList<String>ar=new ArrayList<String>();
 		for(String s:imgNames)ar.add(s);
@@ -61,6 +65,7 @@ import ij.WindowManager;
 				continue;
 			}
 			if(typeThis==typePheno){
+				IJ.log(baseName);
 				tab[2]=baseName.split("_")[0];//Geno
 				tab[3]=baseName.split("_")[1+(newWay ? 1 : 0)];//Management
 				tab[4]=baseName.split("_")[2+(newWay ? 1 : 0)];//Depth
@@ -106,7 +111,10 @@ import ij.WindowManager;
 			boolean []isLacune=new boolean[nR];
 			String[][]tabLac=VitimageUtils.readStringTabFromCsv(dirLac+"/"+baseName+".tif.csv");
 			for(int l=1;l<tabLac.length;l++) {
-				int index=Integer.parseInt(tabLac[l][1])-1;
+				int index=0;
+				//if(tabLac[0].length==3)index=Integer.parseInt(tabLac[l][2])-1;
+				//else 
+				index=Integer.parseInt(tabLac[l][1])-1;
 				if(index>=isLacune.length) {
 					System.out.println("Alerte : "+index);
 				}
@@ -163,7 +171,16 @@ import ij.WindowManager;
 		writeStringTabInCsv2(finalTab, pathToOutputCsv);
 		IJ.showMessage("Finished!");
 	}
-
+	public String getDirBeanshell(){
+		s1=IJ.getDirectory("imagej")+"macros/pathProcessing.txt";
+		BufferedReader reader = new BufferedReader(new FileReader(s1));
+		String line = reader.readLine();
+		reader.close();
+		s2=line.split("\n")[0];
+		s3=s2.split("\r\n")[0];
+		s4=s3.split("\r")[0];
+		return s4;
+	}
 	public static void writeStringTabInCsv2(String[][]tab,String fileName) {
 	//	System.out.println("Impression de tableau de taille "+tab.length+" x "+tab[0].length);
 		try { 
@@ -258,9 +275,7 @@ import ij.WindowManager;
 
 
 
-	String path=VitiDialogs.chooseOneImageUIPath("Select an image","an image");
-    String dirName=new File(new File(path).getParent() ).getParent();
-	System.out.println(dirName);
+	String dirName=getDirBeanshell();
 	computeSummaryOfLacuneData(dirName,dirName+"/Results_aerenchyme_measurements.csv",true);
 //	test();
  

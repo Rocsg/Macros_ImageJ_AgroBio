@@ -2,24 +2,14 @@
 run("Close All");
 cleanRois();
 setTool("oval");
-showMessage("Use the Polygon Roi tool to connect all the cell centers of the endoderm.\nTime estimated : 1 mn per image");
-showMessage("First, select an image in the 1_Source directory\nSelect any image, whatever, it is just used to find the parent folder.\nThe images which already have a endoderm contour in 2_AreaRoi won t be displayed");
-
-//Handle data and datapath
-open();
-fileName = File.nameWithoutExtension;
-dirName = File.directory;
-print("Processing "+fileName);
-print("In dir "+dirName);
 setTool("point");
-img=getImageID();
-imgToTry=getInfo("image.filename");
-maindir=File.getParent(dirName);
-print(maindir);
-dir1=maindir+"/1_Source";
-dirRoi=maindir+"/2_AreaRoi";
-run("Close All");
+showMessage("Use the Polygon Roi tool to connect all the cell centers of the endoderm.\nTime estimated : 1 mn per image");
 
+
+maindir = getDirMacro();
+dir1=maindir+"1_Source";
+dirRoi=maindir+"2_AreaRoi";
+run("Close All");
 list = getFileList(dir1);
 N=list.length;
 setTool("polygon");
@@ -78,7 +68,15 @@ function getCoordsOfPointInRoi(){
 	return tab;
 }
 
-
+function getDirMacro(){
+	s1=File.openAsString(getDirectory("imagej")+"/macros/pathProcessing.txt") ;
+	s2=split(s1,"\n");
+	s3=s2[0];
+	s4=split(s3,"\r\n");
+	s5=s4[0];
+	s6=split(s5,"\r\n");
+	return s6[0];
+}
 
 /*		
 */

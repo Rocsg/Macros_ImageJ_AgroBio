@@ -4,11 +4,7 @@
 run("Close All");
 cleanRois();
 showMessage("Verify the lacunes. Just check every image, then click ok.\nIf you notice something bad (some missing cells), note the title (image name), and the bad contour,\nIf necessary, remove the lacune annotation (in 4_LacunesIndices), then run back lacunes annotations.");
-showMessage("First, select an image in the 1_Source directory\nSelect any image, whatever, it is just used to find the parent folder.");
-open();
-fileName = File.nameWithoutExtension;
-dirName = File.directory;
-maindir=File.getParent(dirName);
+maindir = getDirMacro();
 dir1=maindir+"/1_Source";
 dirRoi=maindir+"/3_CellRoi";
 dirLac=maindir+"/4_LacunesIndices";
@@ -79,5 +75,15 @@ function getCoordsOfPointInRoi(path){
 	tab[0]=xpoints[0];
 	tab[1]=ypoints[0];
 	return tab;
+}
+
+function getDirMacro(){
+	s1=File.openAsString(getDirectory("imagej")+"/macros/pathProcessing.txt") ;
+	s2=split(s1,"\n");
+	s3=s2[0];
+	s4=split(s3,"\r\n");
+	s5=s4[0];
+	s6=split(s5,"\r\n");
+	return s6[0];
 }
 

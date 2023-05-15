@@ -4,12 +4,8 @@
 run("Close All");
 cleanRois();
 showMessage("Don t do anything, just wait for it, and appreciate the segmentation being done automatically\nIf you suffer from epillepsy, you should not stay in front of the computer meanwhile\nEstimated time : 3 seconds per image");
-showMessage("First, select an image in the 1_Source directory\nSelect any image, whatever, it is just used to find the parent folder.\nThe images which don't have one of the three expected roi will make the macro fail.");
 
-open();
-fileName = File.nameWithoutExtension;
-dirName = File.directory;
-maindir=File.getParent(dirName);
+maindir = getDirMacro();
 dir1=maindir+"/1_Source";
 dirRoi=maindir+"/3_CellRoi";
 list = getFileList(dir1);
@@ -36,7 +32,7 @@ for (i=0; i<N; i++) {
 	*/
 	run("Enhance Local Contrast (CLAHE)", "blocksize=127 histogram=256 maximum=3 mask=*None* fast_(less_accurate)");
 	//Get cortex area
-	roiManager("open", maindir+"/2_AreaRoi/"+list[i]+"cortex_in.zip");
+	roiManager("open", maindir+"/2_AreaRoi/"+list[i]+"stele_out.zip");
 	roiManager("Select", 0);
 	run("Clear", "slice");
 	cleanRois();
@@ -148,3 +144,12 @@ function prepareImage(path){
 	run("Apply LUT");
 }
 
+function getDirMacro(){
+	s1=File.openAsString(getDirectory("imagej")+"/macros/pathProcessing.txt") ;
+	s2=split(s1,"\n");
+	s3=s2[0];
+	s4=split(s3,"\r\n");
+	s5=s4[0];
+	s6=split(s5,"\r\n");
+	return s6[0];
+}

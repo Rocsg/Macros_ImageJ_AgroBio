@@ -2,19 +2,10 @@
 run("Close All");
 cleanRois();
 showMessage("Click on the aerenchymes. If you want to remove an aerenchyme, click again on it (then -T- command).\nTime estimated : 1 mn per image.");
-showMessage("First, select an image in the 1_Source directory\nSelect any image, whatever, it is just used to find the parent folder.");
 
 //Handle data and datapath
-open();
-fileName = File.nameWithoutExtension;
-dirName = File.directory;
-print("Processing "+fileName);
-print("In dir "+dirName);
 setTool("point");
-img=getImageID();
-imgToTry=getInfo("image.filename");
-maindir=File.getParent(dirName);
-print(maindir);
+maindir = getDirMacro();
 dir1=maindir+"/1_Source";
 dirRoi=maindir+"/3_CellRoi";
 dirLac=maindir+"/4_LacunesIndices";
@@ -39,11 +30,13 @@ for (ii=0; ii<N; ii++) {
 	cleanRois();
     squaresize=110;
 	//Prepare results table
+	prepareImage(dir1+"/"+imgToTry);
+	id2 = getImageID();
+
+	setTool("rectangle");
 	Table.create("Lacune_indices_"+imgToTry);
 	Table.setLocationAndSize(0, 0, 100,100);
 	Table.update();
-	prepareImage(dir1+"/"+imgToTry);
-	setTool("rectangle");
 	makeRectangle(0,0, squaresize, squaresize);
 	setForegroundColor(255, 255, 255);
 	run("Draw", "slice");
@@ -52,6 +45,8 @@ for (ii=0; ii<N; ii++) {
 	setColor("white");
 	drawString("Click here and T\nto finish", 1, 18);
 	prepareImage(dir1+"/"+imgToTry);
+	id1 = getImageID();
+	
 	makeRectangle(0, 0, squaresize, squaresize);
 	setForegroundColor(255, 255, 255);
 	run("Draw", "slice");
@@ -118,9 +113,20 @@ for (ii=0; ii<N; ii++) {
 				Table.deleteRows(kk, kk);
 				Table.update();
 				//Paint in green
-				roiManager("Select", i);
+/*				roiManager("Select", i);
 				run("Invert");
 				cleanRois();		
+*/
+			
+				id3 = getImageID();
+				selectImage(id1);
+				roiManager("Select", i);
+				run("Invert");
+				selectImage(id2);
+				roiManager("Select", i);
+				run("Invert");
+				selectImage(id3);
+				cleanRois();					
 			}	
 			else{
 				//Save the index of lacune in the table
@@ -128,9 +134,16 @@ for (ii=0; ii<N; ii++) {
 				Table.set("ImgName", incr,imgToTry);
 				Table.set("Displayed index (1-inf)", incr,i+1);
 				Table.update();
+
 				//Paint in green
+				id3 = getImageID();
+				selectImage(id1);
 				roiManager("Select", i);
 				run("Invert");
+				selectImage(id2);
+				roiManager("Select", i);
+				run("Invert");
+				selectImage(id3);
 				cleanRois();		
 			}
 		}
@@ -173,7 +186,15 @@ function getCoordsOfPointInRoi(){
 	return tab;
 }
 
-
+function getDirMacro(){
+	s1=File.openAsString(getDirectory("imagej")+"/macros/pathProcessing.txt") ;
+	s2=split(s1,"\n");
+	s3=s2[0];
+	s4=split(s3,"\r\n");
+	s5=s4[0];
+	s6=split(s5,"\r\n");
+	return s6[0];
+}
 
 /*		
 */

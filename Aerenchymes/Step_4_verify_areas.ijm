@@ -5,13 +5,9 @@ run("Close All");
 cleanRois();
 
 showMessage("Verify all the contours. Just check every image, then click ok.\nIf you notice something bad, note the title (image name), and the bad contour,\nthen remove the corresponding roi file in 2_AreaRoi, and run again the corresponding script\n");
-showMessage("First, select an image in the 1_Source directory\nSelect any image, whatever, it is just used to find the parent folder.\nThe images which don't have one of the three expected roi will make the macro fail.");
 
 
-open();
-fileName = File.nameWithoutExtension;
-dirName = File.directory;
-maindir=File.getParent(dirName);
+maindir = getDirMacro();
 dir1=maindir+"/1_Source";
 dirRoi=maindir+"/2_AreaRoi";
 list = getFileList(dir1);
@@ -68,5 +64,15 @@ function prepareImage(path){
 	run("8-bit");
 	run("Enhance Contrast", "saturated=0.35");
 	run("Apply LUT");
+}
+
+function getDirMacro(){
+	s1=File.openAsString(getDirectory("imagej")+"/macros/pathProcessing.txt") ;
+	s2=split(s1,"\n");
+	s3=s2[0];
+	s4=split(s3,"\r\n");
+	s5=s4[0];
+	s6=split(s5,"\r\n");
+	return s6[0];
 }
 

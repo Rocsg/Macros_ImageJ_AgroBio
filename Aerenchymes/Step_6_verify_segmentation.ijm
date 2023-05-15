@@ -4,11 +4,7 @@
 run("Close All");
 cleanRois();
 showMessage("Verify the segmentation. Just check every image, then click ok.\nIf you notice something bad (some missing cells), note the title (image name), and the bad contour,\nMaybe you have taken a cell more or less with your global contours. You can change them and rerun the process.");
-showMessage("First, select an image in the 1_Source directory\nSelect any image, whatever, it is just used to find the parent folder.\nThe images which don't have one of the three expected roi will make the macro fail.");
-open();
-fileName = File.nameWithoutExtension;
-dirName = File.directory;
-maindir=File.getParent(dirName);
+maindir = getDirMacro();
 dir1=maindir+"/1_Source";
 dirRoi=maindir+"/3_CellRoi";
 list = getFileList(dir1);
@@ -64,3 +60,12 @@ function prepareImage(path){
 	run("Apply LUT");
 }
 
+function getDirMacro(){
+	s1=File.openAsString(getDirectory("imagej")+"/macros/pathProcessing.txt") ;
+	s2=split(s1,"\n");
+	s3=s2[0];
+	s4=split(s3,"\r\n");
+	s5=s4[0];
+	s6=split(s5,"\r\n");
+	return s6[0];
+}
