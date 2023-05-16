@@ -30,7 +30,7 @@ import inra.ijpb.morphology.Strel3D;
 import ij.plugin.ImageCalculator;
 
 public run(String maindir){
-	run("Colors...", "foreground=white background=black selection=magenta");
+	IJ.run("Colors...", "foreground=white background=black selection=magenta");
 	System.out.println(maindir);
 	dir1=maindir+"/1_Source";
 	dirRoi=maindir+"/2_AreaRoi";
@@ -129,7 +129,9 @@ public run(String maindir){
 		rm.reset();
 
 		IJ.run("Create Selection");
+		IJ.showMessage("Juste avant d inverserr");
 		IJ.run(imgFull2, "Make Inverse", "");
+		IJ.showMessage("Juste prese d inverserr");
 		rm.runCommand("Add");
 		rm.select(0);		
 		rm.runCommand("save selected", maindir+"/2_AreaRoi/"+list[i]+"stele_out.zip");			
