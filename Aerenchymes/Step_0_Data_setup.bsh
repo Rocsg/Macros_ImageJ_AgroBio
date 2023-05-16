@@ -65,5 +65,7 @@ Files.write(Paths.get(outputFolder+"/pathProcessing.txt_savedformemory.txt"), ne
 
 IJ.showMessage("Finished !");
 IJ.showMessage("Now run script 1, script2 ...Results will be stored in "+outputFolder);
+IJ.showMessage("The definition of the input and output path will stay until you run again this script (for startin another serie for example)");
+IJ.showMessage("If one day for any reason you want to change the paths by hand (for doing back an older series), you can do it by editing the files "+IJ.getDirectory("imagej")+"macros"+"/path......txt");
 
 
