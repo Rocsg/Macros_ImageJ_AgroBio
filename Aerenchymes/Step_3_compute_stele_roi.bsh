@@ -30,6 +30,7 @@ import inra.ijpb.morphology.Strel3D;
 import ij.plugin.ImageCalculator;
 
 public run(String maindir){
+	run("Colors...", "foreground=white background=black selection=magenta");
 	System.out.println(maindir);
 	dir1=maindir+"/1_Source";
 	dirRoi=maindir+"/2_AreaRoi";
