@@ -129,15 +129,10 @@ public run(String maindir){
 		rm.reset();
 
 		IJ.run("Create Selection");
-<<<<<<< HEAD
-		IJ.showMessage("Juste avant d inverserr");
-		IJ.run(imgFull2, "Make Inverse", "");
-		IJ.showMessage("Juste prese d inverserr");
-=======
-		if(new File("C:/Users/bals/3D Objects/bals.txt").exists()){
+		File f=new File("C:/Users/bals/3D Objects/bals.txt");
+		if(! (f.exists()) ){
 			IJ.run(imgFull2, "Make Inverse", "");
 		}
->>>>>>> 169f2a36f4c4193f5ae4013230a83b8642dcecbb
 		rm.runCommand("Add");
 		rm.select(0);		
 		rm.runCommand("save selected", maindir+"/2_AreaRoi/"+list[i]+"stele_out.zip");			
