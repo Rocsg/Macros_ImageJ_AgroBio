@@ -128,6 +128,7 @@ public run(String maindir){
 		cleanRois();
 		rm.reset();
 
+		IJ.run("Colors...", "foreground=white background=black selection=magenta");
 		IJ.run("Create Selection");
 		File f=new File("C:/Users/bals/3D Objects/bals.txt");
 		if(! (f.exists()) ){

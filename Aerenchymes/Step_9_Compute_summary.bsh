@@ -20,7 +20,7 @@ import ij.plugin.frame.RoiManager;
 import ij.WindowManager;
 	
 	
-	public static void computeSummaryOfLacuneData(String dirExp,String pathToOutputCsv,boolean newWay) {
+	public static void computeSummaryOfLacuneData(String dirExp,String pathToOutputCsv) {
 		int typePaula=1;
 		int typeSergi=0;
 		int typePheno=2;
@@ -33,9 +33,10 @@ import ij.WindowManager;
 		String[]imgNames=new File(dirSource).list();
 		typeThis=determineProvider(imgNames);
 		IJ.log("Type="+typeThis);
-		
-		
+		boolean newWay=imgNames[0].replace(".tif","").split("_").length()>4;		
+		IJ.log("NewWay="+newWay);
 
+		
 		ArrayList<String>ar=new ArrayList<String>();
 		for(String s:imgNames)ar.add(s);
 		ar.sort(null);
@@ -48,7 +49,7 @@ import ij.WindowManager;
 		//"11_MEASURE_imaged_lacune_surface",
 		//"12_COMPUTED_ratio_lacune_over_imaged_cortex",
 		//"13_COMPUTED_Full_cortex_over_strict_stele_ratio"}
-		finalTab[0]=new String[] {"0_PARAM_ImgName","1_PARAM_INFO","2_PARAM_Geno","3_PARAM_Management","4_PARAM_Depth","5_PARAM_Repetition","6_PARAM_Magnification","7_MEASURED_total_cortex_surface","8_MEASURED_strict_stele_surface_without_endoderm","9_MEASURED_endoderm_surface","10_MEASURED_lacune_and_cytoplasms_surface","11_MEASURED_lacune_surface","12_COMPUTED_lacune_ratio_percent","13_COMPUTED_cortex_over_stele_ratio"};
+		finalTab[0]=new String[] {"0_PARAM_ImgName","1_PARAM_INFO","2_PARAM_Geno","3_PARAM_Management","4_PARAM_Depth","5_PARAM_Repetition","6_PARAM_pixsize","7_MEASURED_total_cortex_surface","8_MEASURED_strict_stele_surface_without_endoderm","9_MEASURED_endoderm_surface","10_MEASURED_lacune_and_cytoplasms_surface","11_MEASURED_lacune_surface","12_COMPUTED_lacune_ratio_percent","13_COMPUTED_cortex_over_stele_ratio"};
 		Timer t=new Timer();
 		for(int i=0;i<N;i++) {
 			String[]tab=new String[14];
@@ -229,19 +230,20 @@ import ij.WindowManager;
 	
 	public static double getMagnification(String path) {
 		ImagePlus img=IJ.openImage(path);
-		double d=0;
-		if(img.getInfoProperty().split("Objective Correction").length>1) {
-			d=Double.parseDouble( img.getInfoProperty().split("Objective Correction")[1].split("NominalMagnification")[1].split("\"")[1]);
-			System.out.println("Detected : "+d);
+		double d=1;
+		if(img.getInfoProperty().split("PhysicalSizeX").length>1) {
+			d=Double.parseDouble( img.getInfoProperty().split("PhysicalSizeX=\"")[1].split("\" PhysicalSizeY")[0]);
+			IJ.log("Detected pixel size: "+d);
 			return d;
 		}
-		else d=20;
-		System.out.println("Guessed : "+d);
+		else d=1;
+		System.out.println("Guessed pixel size: "+d);
 		return d;
 	}
 
 	public static int determineProvider(String[]tab){
 		String str=tab[0].replace(".tif","");
+		IJ.log(str);
 		//Paola=at least 8 caracters
 		//If so, test if there is two occurences of underscore
 		//if so, test if between the two underscore there is 4 caracters
@@ -250,7 +252,7 @@ import ij.WindowManager;
 		//Pheno=at least 9 caracters		
 		//If so, test if there is 4 underscores
 		//If so, test if the second and third compartment have exactly one caracter
-		if( (str.length()>=9) && (str.split("_").length==5) && (str.split("_")[1].length()==1) && (str.split("_")[2].length()==1) ) return 2; //Pheno
+		if( (str.length()>=7) && (str.split("_").length>=4) && (str.split("_")[1].length()==1)) return 2; //Pheno
 
 		return 0; //default=Sergi
 	}
@@ -276,7 +278,7 @@ import ij.WindowManager;
 
 
 	String dirName=getDirBeanshell();
-	computeSummaryOfLacuneData(dirName,dirName+"/Results_aerenchyme_measurements.csv",true);
+	computeSummaryOfLacuneData(dirName,dirName+"/Results_aerenchyme_measurements.csv");
 //	test();
  
 	//String dirExp="/home/rfernandez/Bureau/A_Test/Aerenchyme/Benoit_Exp7_E7";	
