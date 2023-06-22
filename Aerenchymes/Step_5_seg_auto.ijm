@@ -19,77 +19,92 @@ run("Colors...", "foreground=white background=black selection=yellow");
 
 
 for (i=0; i<N; i++) {
-	//Open and prepare image
-	print("Toto");
-	prepareImage(dir1+"/"+list[i]);
-	sig=2;
-	/*
-	mag=10;
-	mag=getMagnification();
-	if(mag==20)sig=2;
-	if(mag==10)sig=2;	
-	//radiusStele=radiusSteleStandard*mag;
-	*/
-	run("Enhance Local Contrast (CLAHE)", "blocksize=127 histogram=256 maximum=3 mask=*None* fast_(less_accurate)");
-	//Get cortex area
-	roiManager("open", maindir+"/2_AreaRoi/"+list[i]+"endoderm.zip");
-	roiManager("Select", 0);
-	run("Clear", "slice");
-	cleanRois();
-	roiManager("open", maindir+"/2_AreaRoi/"+list[i]+"cortex_out.zip");
-	roiManager("Select", 0);
-	run("Clear Outside");
-//	run("Enhance Contrast", "saturated=1");
-//	run("Apply LUT");
-	run("Gaussian Blur...", "sigma="+sig);//(mag/6));
-	cleanRois();
-	rename("gauss");
-	run("Find Maxima...", "prominence=1 light output=[Single Points]");//3
-	rename("marks");
-	run("Marker-controlled Watershed", "input=gauss marker=marks mask=None compactness=0 binary calculate use");
-	rename(list[i]);
-	setMinAndMax("0.50", "0.50");
-	setOption("ScaleConversions", true);
-	run("8-bit");
-	setThreshold(1, 255);
-
-	run("Analyze Particles...", "size=0-Infinity circularity=0-1.00 display clear exclude add");
-
-	n=roiManager('count');
-	roiManager("open", maindir+"/2_AreaRoi/"+list[i]+"cortex_in.zip");
-    ret=0;
-	for (j=n-1; j >=0 ; j--) {		
-	    roiManager('select', j);
-	    Roi.getBounds(x0,y0,X,Y);
-		x_center_n = x0 + X / 2.0; // Calcule la coordonnée X du centre de la ROI numéro n+1
-		y_center_n = y0 + Y / 2.0; // Calcule la coordonnée Y du centre de la ROI numéro n+1
-	    roiManager('select', n-ret);
-	    if(Roi.contains(x_center_n, y_center_n)){
-			roiManager("select", j);
-			roiManager("delete");	 
-			ret=ret+1;   	
-	    }
+	watershedIsNew=false;
+	if(File.exists(dirRoi+"/"+list[i]+".zip")){
+		print("Watershed : skipping file "+list[i]);
 	}
-	n=roiManager('count');
-	roiManager("select", n-1);
-	roiManager("delete");	 
-			
+	else {								
+	//Open and prepare image
+		print("Toto");
+		prepareImage(dir1+"/"+list[i]);
+		sig=2;
+		/*
+		mag=10;
+		mag=getMagnification();
+		if(mag==20)sig=2;
+		if(mag==10)sig=2;	
+		//radiusStele=radiusSteleStandard*mag;
+		*/
+		run("Enhance Local Contrast (CLAHE)", "blocksize=127 histogram=256 maximum=3 mask=*None* fast_(less_accurate)");
+		//Get cortex area
+		roiManager("open", maindir+"/2_AreaRoi/"+list[i]+"endoderm.zip");
+		roiManager("Select", 0);
+		run("Clear", "slice");
+		cleanRois();
+		roiManager("open", maindir+"/2_AreaRoi/"+list[i]+"cortex_out.zip");
+		roiManager("Select", 0);
+		run("Clear Outside");
+	//	run("Enhance Contrast", "saturated=1");
+	//	run("Apply LUT");
+		run("Gaussian Blur...", "sigma="+sig);//(mag/6));
+		cleanRois();
+		rename("gauss");
+		run("Find Maxima...", "prominence=1 light output=[Single Points]");//3
+		rename("marks");
+		run("Marker-controlled Watershed", "input=gauss marker=marks mask=None compactness=0 binary calculate use");
+		rename(list[i]);
+		setMinAndMax("0.50", "0.50");
+		setOption("ScaleConversions", true);
+		run("8-bit");
+		setThreshold(1, 255);
 	
-	roiManager("Save", dirRoi +"/"+ list[i]+".zip");		
+		run("Analyze Particles...", "size=0-Infinity circularity=0-1.00 display clear exclude add");
+	
+		n=roiManager('count');
+		roiManager("open", maindir+"/2_AreaRoi/"+list[i]+"cortex_in.zip");
+	    ret=0;
+		for (j=n-1; j >=0 ; j--) {		
+		    roiManager('select', j);
+		    Roi.getBounds(x0,y0,X,Y);
+			x_center_n = x0 + X / 2.0; // Calcule la coordonnée X du centre de la ROI numéro n+1
+			y_center_n = y0 + Y / 2.0; // Calcule la coordonnée Y du centre de la ROI numéro n+1
+		    roiManager('select', n-ret);
+		    if(Roi.contains(x_center_n, y_center_n)){
+				roiManager("select", j);
+				roiManager("delete");	 
+				ret=ret+1;   	
+		    }
+		}
+		n=roiManager('count');
+		roiManager("select", n-1);
+		roiManager("delete");	 
+	
+		roiManager("Save", dirRoi +"/"+ list[i]+".zip");		
+		watershedIsNew=true;
+	}//End of watershed for generation of lacune (cells and aerenchymes)			
 
-	n=roiManager('count');
-	run("Select All");
-	roiManager("Combine");
-	roiManager("delete");
-	roiManager("Add");
-	roiManager("Select", 0);
-	run("Convex Hull");
-	roiManager("delete");
-	roiManager("Add");
-	roiManager("Select", 0);
-	roiManager("Save", maindir+"/2_AreaRoi/"+list[i]+"cortex_convexhull.zip");
-	cleanRois();
-	run("Close All");
+	if(File.exists(maindir+"/2_AreaRoi/"+list[i]+"cortex_convexhull.zip") && (!watershedIsNew)){
+		print("Watershed : skipping file "+list[i]);
+	}
+	else {								
+		cleanRois();
+		run("Close All");
+		prepareImage(dir1+"/"+list[i]);
+		roiManager("open",  dirRoi +"/"+ list[i]+".zip");
+		n=roiManager('count');
+		run("Select All");
+		roiManager("Combine");
+		roiManager("delete");
+		roiManager("Add");
+		roiManager("Select", 0);
+		run("Convex Hull");
+		roiManager("delete");
+		roiManager("Add");
+		roiManager("Select", 0);
+		roiManager("Save", maindir+"/2_AreaRoi/"+list[i]+"cortex_convexhull.zip");
+		cleanRois();
+		run("Close All");
+	}
 }
 
 
