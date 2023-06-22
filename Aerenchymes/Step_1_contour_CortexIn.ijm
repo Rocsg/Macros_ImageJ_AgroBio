@@ -18,8 +18,8 @@ print("Entering loop ");
 for (i=0; i<N; i++) {
 	//Open and prepare image
 	print("Starting loop with "+list[i]);
-	if(File.exists(dirRoi+"/"+list[i]+"endoderm.zip")){
-		print("Skipping file "+list[i]+"endoderm.zip");
+	if(File.exists(dirRoi+"/"+list[i]+"stele_out.zip") && File.exists(dirRoi+"/"+list[i]+"cortex_in.zip")){
+		print("Skipping file "+list[i]);
 		continue;
 	}
 	prepareImage(dir1+"/"+list[i]);
