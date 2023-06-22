@@ -11,7 +11,7 @@ IJ.showMessage("Define a new experiment.");
 IJ.showMessage("Choose the folder containing the original tif images");
 String sourceFolder = IJ.getDirectory("Choose the source image folder");
 
-IJ.showMessage("Choose an empty processing folder to host the succesive parts of processing");
+IJ.showMessage("Choose an empty processing folder to host the successive parts of processing, or choose an existing folder with in it 2_AreaRoi, 4_LacunesIndices etc...");
 String outputFolder = IJ.getDirectory("Choose the output folder");
 
 
@@ -35,25 +35,21 @@ if(fileList.length<1){
 if (!new File(outputFolder).isDirectory()){
 	IJ.showMessage("The provided output Dir is not a directory. Abort.");return;
 }
+
 fileList = new File(outputFolder).list();
-if(fileList.length>0){
-	IJ.showMessage("Output dir is not empty. Abort.");return;
-}
-
-
-//Create 1_Source, 2_AreaRoi, 3_CellRoi, 4_LacunesIndices
-new File(outputFolder+"/"+"1_Source").mkdirs();
-new File(outputFolder+"/"+"2_AreaRoi").mkdirs();
-new File(outputFolder+"/"+"3_CellRoi").mkdirs();
-new File(outputFolder+"/"+"4_LacunesIndices").mkdirs();
-
-
-
-//Copy the images from raw to processing
-fileList = new File(sourceFolder).list();
-for (int i=0; i<fileList.length; i++) {
-	IJ.log("Copying image "+i+" / "+fileList.length);
-	Files.copy(Paths.get(sourceFolder+"/"+fileList[i]), Paths.get(outputFolder+"/1_Source/"+fileList[i]), StandardCopyOption.REPLACE_EXISTING);
+if(fileList.length==0){
+	//Create 1_Source, 2_AreaRoi, 3_CellRoi, 4_LacunesIndices
+	new File(outputFolder+"/"+"1_Source").mkdirs();
+	new File(outputFolder+"/"+"2_AreaRoi").mkdirs();
+	new File(outputFolder+"/"+"3_CellRoi").mkdirs();
+	new File(outputFolder+"/"+"4_LacunesIndices").mkdirs();
+			
+	//Copy the images from raw to processing
+	fileList = new File(sourceFolder).list();
+	for (int i=0; i<fileList.length; i++) {
+		IJ.log("Copying image "+i+" / "+fileList.length);
+		Files.copy(Paths.get(sourceFolder+"/"+fileList[i]), Paths.get(outputFolder+"/1_Source/"+fileList[i]), StandardCopyOption.REPLACE_EXISTING);
+	}
 }
 
 Files.write(Paths.get(IJ.getDirectory("imagej")+"macros"+"/pathSource.txt"), new String(sourceFolder).getBytes(), StandardOpenOption.CREATE);
