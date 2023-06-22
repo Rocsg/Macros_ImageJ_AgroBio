@@ -2,7 +2,7 @@
 
 Update 2023 05 10 : 
 * split the first step in two steps. 
-* replace the "asking paola trick" by explicit computation of magnification.
+* replace the "asROI paola trick" by explicit computation of magnification.
 * Add a beanshell command to automatically generate the csv. It generates a CSV at the end, right into the main folder of your experiment. Warning, tt works only with some filename formats. Sylvie's is : 4_M_I_3_a.tif , and Paola's is 4_A2SB_10.tif . 
 Interested in another file name formats ? Just write it down in the Step9 macro (ask to Romain).
 
@@ -42,4 +42,30 @@ Interested in another file name formats ? Just write it down in the Step9 macro 
 * Step 9 : compute the summary. Just run the macro as the previous ones. It generates a CSV at the end, right into the main folder of your experiment. It works only with some filename formats. Sylvie's is : 4_M_I_3_a.tif , and Paola's is 4_A2SB_10.tif . 
 
 Interested in another file name formats ? Just write it down in the Step9 macro (ask to Romain)
+
+
+
+# How to update a dataset from V1 to V2 :
+
+* Changes 2_CortexROI to 2_AreaROI
+* Modify 5_LacunesIndices to 4_LacunesIndices
+* Make a backup copy of the raw data: copy the 1_Source folder into a 0_Raw folder
+* Edit pathProcessing in ImageJ/Macro : 
+   -> for pathSource.txt, enter the path to the 0_Raw folder
+   -> for pathProcessing.txt, specify the parent folder
+
+* Script 1 does not need to be used, it is just used to build the contour_endoderm intermediate object. If the experiment went well, the two target objects have already been generated (cortex_in and stele_out).
+
+* We run script 4 to check all the cortexes and stele. For each one that looks a bit odd, we note the name of the specimen, then we delete the file 2_AreaRoi/blabla_stele_out.zip, then we run Script_1 again to generate the corresponding endoderm, then Script_3 to calculate the cortex_in and stele_out, then we run Script 4 again to check.
+
+* If any contours have been modified (particularly cortex_in), delete 3_CellRoi/blabla.zip, and run Script 5 again, which will recalculate the segmentation. In all cases, running Script 5 will allow you to calculate convex-hulls, which were not present in version 1 (operations carried out before June 2023). 
+
+
+
+
+
+* cortex_hullo must be generated
+
+
+
 
