@@ -8,10 +8,12 @@ showMessage("Verify all the contours. Just check every image, then click ok.\nIf
 
 
 maindir = getDirMacro();
+print(maindir);
 dir1=maindir+"/1_Source";
 dirRoi=maindir+"/2_AreaRoi";
 list = getFileList(dir1);
 N=list.length;
+print(N);
 
 radiusSteleStandard=5;//Measured on a bunch of images
 run("Colors...", "foreground=white background=black selection=magenta");

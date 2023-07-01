@@ -74,16 +74,16 @@ import ij.WindowManager;
 				tab[6]=""+getMagnification(dirSource+"/"+baseName+".tif");//Magnification
 
 			}
-			if(typeThis==typePaola){
+			if(typeThis==typePaula){
 				//      5_   A     2         S     B        _10
 				//all	Geno Man Repetroot Type Position RepetSlice  
 			    //0     2    3       5a          4          5b
 				String bl0=baseName.split("_")[0];
 				String bl1=baseName.split("_")[1];
 				String bl2=baseName.split("_")[2];
-				System.out.println("Bl0="+bl0);
-				System.out.println("Bl1="+bl1);
-				System.out.println("Bl2="+bl2);
+				//IJ.log("  Bl0="+bl0);
+				//IJ.log("  Bl1="+bl1);
+				//IJ.log("  Bl2="+bl2);
 				tab[1]="Roottype-"+bl1.charAt(2);
 				tab[2]=""+bl0;//Geno
 				tab[3]=""+bl1.charAt(0);//Management
@@ -109,6 +109,7 @@ import ij.WindowManager;
 			IJ.open(dirRoi+"/"+baseName+".tif.zip");
 			RoiManager rm=RoiManager.getInstance();
 			int nR=rm.getCount();
+			int nnnR=rm.getCount();
 			boolean []isLacune=new boolean[nR];
 			String[][]tabLac=VitimageUtils.readStringTabFromCsv(dirLac+"/"+baseName+".tif.csv");
 			for(int l=1;l<tabLac.length;l++) {
@@ -121,6 +122,7 @@ import ij.WindowManager;
 				}
 				else isLacune[index]=true;
 			}
+			nnnR=rm.getCount();
 			int totNbCell=0;
 			int totNbLac=0;
 			for(int r=0;r<nR;r++) {
@@ -134,22 +136,58 @@ import ij.WindowManager;
 			}
 			tab[10]=""+(imagedCortex);
 			tab[11]=""+imagedLacune;		
-
+			nnnR=rm.getCount();
 			
 			//"7_MEASURE_total_cortex_surface"
 			//"8_MEASURE_strict_stele_surface_without_endoderm"
 			//"9_MEASURE_endoderm_surface"
-			rm.reset();
-			IJ.open(dirCortex+"/"+baseName+".tifstele_out.zip");
-			double strictStele=getRoiSurface(rm.getRoi(0));
-			rm.reset();
 
+			rm.reset();
 			IJ.open(dirCortex+"/"+baseName+".tifcortex_in.zip");
+			rm.select(0);
+			Roi roi=rm.getRoi(0);
+			if(roi.getBounds().y<1 && roi.getBounds().x<1){
+				rm.select(0);
+				IJ.run(img, "Make Inverse", "");
+				rm.addRoi(img.getRoi());
+				rm.select(0);
+				rm.runCommand(img,"Delete");
+				rm.select(0);
+			}
+			rm=RoiManager.getInstance();
 			double cortexIn=getRoiSurface(rm.getRoi(0));
+			IJ.log("Got cortexIn="+cortexIn);
 			rm.reset();
 
+			nnnR=rm.getCount();
+			IJ.open(dirCortex+"/"+baseName+".tifstele_out.zip");
+			roi=rm.getRoi(0);
+			if(roi.getBounds().y<1 && roi.getBounds().x<1){
+				rm.select(0);
+				IJ.run(img, "Make Inverse", "");
+				rm.addRoi(img.getRoi());
+				rm.select(0);
+				rm.runCommand(img,"Delete");
+				rm.select(0);
+			}
+			double strictStele=getRoiSurface(rm.getRoi(0));
+			IJ.log("Got stele="+strictStele);
+			rm.reset();
+
+			
 			IJ.open(dirCortex+"/"+baseName+".tifcortex_convexhull.zip");
+			roi=rm.getRoi(0);
+			if(roi.getBounds().y<1 && roi.getBounds().x<1){
+				rm.select(0);
+				IJ.run(img, "Make Inverse", "");
+				rm.addRoi(img.getRoi());
+				rm.select(0);
+				rm.runCommand(img,"Delete");
+				rm.select(0);
+			}
+			rm=RoiManager.getInstance();
 			double cortexEndodermAndStele=getRoiSurface(rm.getRoi(0));
+			IJ.log("Got convhull="+cortexEndodermAndStele);
 			rm.reset();
 
 			tab[7]=""+(cortexEndodermAndStele-cortexIn);
