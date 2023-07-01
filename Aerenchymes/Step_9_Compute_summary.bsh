@@ -113,15 +113,32 @@ import ij.WindowManager;
 			int nnnR=rm.getCount();
 			boolean []isLacune=new boolean[nR];
 			String[][]tabLac=VitimageUtils.readStringTabFromCsv(dirLac+"/"+baseName+".tif.csv");
-			for(int l=1;l<tabLac.length;l++) {
-				int index=0;
-				//if(tabLac[0].length==3)index=Integer.parseInt(tabLac[l][2])-1;
-				//else 
-				index=Integer.parseInt(tabLac[l][1])-1;
-				if(index>=isLacune.length) {
-					System.out.println("Alerte : "+index);
+			boolean noLacuneMode=tabLac[0][0].contains("NoLac");
+
+			if(noLacuneMode){
+				for(int i = 0;i<nR;i++)isLacune[i]=true;				
+				for(int l=1;l<tabLac.length;l++) {
+					int index=0;
+					//if(tabLac[0].length==3)index=Integer.parseInt(tabLac[l][2])-1;
+					//else 
+					index=Integer.parseInt(tabLac[l][1])-1;
+					if(index>=isLacune.length) {
+						System.out.println("Alerte : "+index);
+					}
+					else isLacune[index]=false;
 				}
-				else isLacune[index]=true;
+			}
+			else{
+				for(int l=1;l<tabLac.length;l++) {
+					int index=0;
+					//if(tabLac[0].length==3)index=Integer.parseInt(tabLac[l][2])-1;
+					//else 
+					index=Integer.parseInt(tabLac[l][1])-1;
+					if(index>=isLacune.length) {
+						System.out.println("Alerte : "+index);
+					}
+					else isLacune[index]=true;
+				}
 			}
 			nnnR=rm.getCount();
 			int totNbCell=0;
