@@ -157,6 +157,7 @@ function prepareImage(path){
 	run("8-bit");
 	run("Enhance Contrast", "saturated=0.35");
 	run("Apply LUT");
+	setOption("Changes", false);
 }
 
 function getDirMacro(){

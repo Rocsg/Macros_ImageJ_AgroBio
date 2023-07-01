@@ -105,7 +105,8 @@ import ij.WindowManager;
 			//"11_MEASURE_imaged_lacune_surface"
 			double imagedCortex=0;
 			double imagedLacune=0;
-			ImagePlus img=IJ.openImage(dirSource+"/"+baseName+".tif");			
+			ImagePlus img=IJ.openImage(dirSource+"/"+baseName+".tif");	
+			img.changes=false;		
 			IJ.open(dirRoi+"/"+baseName+".tif.zip");
 			RoiManager rm=RoiManager.getInstance();
 			int nR=rm.getCount();
@@ -147,12 +148,15 @@ import ij.WindowManager;
 			rm.select(0);
 			Roi roi=rm.getRoi(0);
 			if(roi.getBounds().y<1 && roi.getBounds().x<1){
+				img.show();
+				IJ.log("Inversion of cortex_in");
 				rm.select(0);
 				IJ.run(img, "Make Inverse", "");
 				rm.addRoi(img.getRoi());
 				rm.select(0);
 				rm.runCommand(img,"Delete");
 				rm.select(0);
+				img.hide();
 			}
 			rm=RoiManager.getInstance();
 			double cortexIn=getRoiSurface(rm.getRoi(0));
@@ -163,12 +167,17 @@ import ij.WindowManager;
 			IJ.open(dirCortex+"/"+baseName+".tifstele_out.zip");
 			roi=rm.getRoi(0);
 			if(roi.getBounds().y<1 && roi.getBounds().x<1){
+				img.show();
+//				VitimageUtils.waitFor(1000);
+				IJ.log("Inversion of stele_out");
 				rm.select(0);
 				IJ.run(img, "Make Inverse", "");
 				rm.addRoi(img.getRoi());
 				rm.select(0);
 				rm.runCommand(img,"Delete");
 				rm.select(0);
+//				VitimageUtils.waitFor(1000);
+				img.hide();
 			}
 			double strictStele=getRoiSurface(rm.getRoi(0));
 			IJ.log("Got stele="+strictStele);
@@ -178,12 +187,15 @@ import ij.WindowManager;
 			IJ.open(dirCortex+"/"+baseName+".tifcortex_convexhull.zip");
 			roi=rm.getRoi(0);
 			if(roi.getBounds().y<1 && roi.getBounds().x<1){
+				img.show();
+				IJ.log("Inversion of convex_hull");
 				rm.select(0);
 				IJ.run(img, "Make Inverse", "");
 				rm.addRoi(img.getRoi());
 				rm.select(0);
 				rm.runCommand(img,"Delete");
 				rm.select(0);
+				img.hide();
 			}
 			rm=RoiManager.getInstance();
 			double cortexEndodermAndStele=getRoiSurface(rm.getRoi(0));

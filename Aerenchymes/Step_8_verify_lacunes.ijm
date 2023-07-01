@@ -16,9 +16,11 @@ function prepareImage(path){
 	run("8-bit");
 	run("Enhance Contrast", "saturated=0.35");
 	run("Apply LUT");
+	setOption("Changes", false);
 }
 
-
+nModLac=0;
+nMes=0;
 
 for (i=0; i<N; i++) {
 	print("Toto2");
@@ -50,9 +52,24 @@ for (i=0; i<N; i++) {
 	cleanRois();
 	roiManager("show none");
 	run("Synchronize Windows");
-	waitForUser;
+	if(getBoolean("Is this Ok ?")==0){
+		if(getBoolean("Are the lacunes ok ? (click No to delete the lacunes file")==0){
+			File.delete(dirLac +"/"+ list[i]+".csv");
+			nModLac=nModLac+1;
+		}
+		if(File.exists(maindir +"/Results_aerenchyme_measurements.csv")){			
+			File.delete(maindir +"/Results_aerenchyme_measurements.csv");
+			nMes=nMes+1;
+		}
+	}
 }
 
+if((nModLac+nMes)>0){
+	messag="Some files have been removed to be computed again. Please run : \n";
+	if(nModLac>0)messag=messag+"Script_7 ("+nModLac+" images to do).\n";
+	if(nMes>0)messag=messag+"Script_9 (to compute the updated statistics).\n";
+	showMessage(messag);
+}
 
 
 run("Close All");

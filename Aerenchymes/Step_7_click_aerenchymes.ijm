@@ -175,6 +175,7 @@ function prepareImage(path){
 	//run("8-bit");
 	run("Enhance Local Contrast (CLAHE)", "blocksize=127 histogram=256 maximum=3 mask=*None* fast_(less_accurate)");
 	//run("Apply LUT");
+	setOption("Changes", false);
 }
 function getCoordsOfPointInRoi(){
 	tab=newArray(2);
