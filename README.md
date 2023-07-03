@@ -31,7 +31,7 @@ Interested in another file name formats ? Just write it down in the Step9 macro 
 # How to Run these macros :
 * Run the macros from Step_1 to Step_8. To run a macro, drag-slide it into Fiji, then click "Run". When asked, select a random image in the directory 1_Source
 
-* Step 1 : for each image appearing, use the polygon tool to draw the stele contour, then type "T"
+* Step 1 : for each image appearing, use the polygon tool to draw the stele contour, then type "T" 
 * Step 2 : for each image appearing, use the polygon tool to draw the cortex inside contour, then type "T"
 * Step 3 : for each image appearing, use the polygon tool to draw the cortex outside contour, then type T
 * Step 4 : verify all your contours. Whenever a contour is not good, note the image name (title), and suppress the corresponding roi in 2_Cortex_Roi. When you will run again the previous step, the macro will only ask you to do the contours you removed
