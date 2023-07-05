@@ -5,13 +5,12 @@ showMessage("Click on the Apple trees.");
 
 //Handle data and datapath
 setTool("point");
-dirSourceRGB="/home/rfernandez/Bureau/A_Test/FruitFlowDrone/Expe_segment_mano/NielsSource_Split1/rgb";
-dirSourceMS="/home/rfernandez/Bureau/A_Test/FruitFlowDrone/Expe_segment_mano/NielsSource_Split1/ndvi";
-dirTarget="/home/rfernandez/Bureau/A_Test/FruitFlowDrone/Expe_segment_mano/NielsTarget_Split1";
+dirSourceRGB="/home/rfernandez/Bureau/A_Test/FruitFlowDrone/Expe_segment_mano/NielsSource_Split4/rgb";
+dirSourceMS="/home/rfernandez/Bureau/A_Test/FruitFlowDrone/Expe_segment_mano/NielsSource_Split4/ndvi";
+dirTarget="/home/rfernandez/Bureau/A_Test/FruitFlowDrone/Expe_segment_mano/NielsTarget_Split4";
 
 list = getFileList(dirSourceRGB);
 N=list.length;
-
 print("Entering loop ");
 for (ii=0; ii<N; ii++) {
 	imgToTry=list[ii];

@@ -20,20 +20,17 @@ Interested in another file name formats ? Just write it down in the Step9 macro 
 
   
 # How to prepare your data :
-* Generate a folders arborescence that you will use for the processing. It have to contains empty directories :
-1_Source
-2_AreaRoi
-3_CellRoi
-4_LacunesIndices
-
-* Install your images in directory 1_Source.
+Prepare a directory with the images in it, you can name it "EXP_BLABLA_SOURCE" for example. Prepare another directory "EXP_BLABLA_PROCESSING" 
+Read the visual documentation to get insight into what is expected :
+https://docs.google.com/presentation/d/1a5TaaGw8HTw9fF8RFuSiIiY4MgWnfN1NRYTF6sZfZyc/edit?usp=sharing
 
 # How to Run these macros :
-* Run the macros from Step_1 to Step_8. To run a macro, drag-slide it into Fiji, then click "Run". When asked, select a random image in the directory 1_Source
+* Run the macros from Step_0 to Step_9. To run a macro, drag-slide it into Fiji, then click "Run". When asked, select a random image in the directory 1_Source
 
-* Step 1 : for each image appearing, use the polygon tool to draw the stele contour, then type "T" 
-* Step 2 : for each image appearing, use the polygon tool to draw the cortex inside contour, then type "T"
-* Step 3 : for each image appearing, use the polygon tool to draw the cortex outside contour, then type T
+* Step 0 : Setup the directory (indicate the source directory, then the processing directory
+* Step 1 : for each image appearing, use the polygon tool to draw a line joining the centers of the endoderm cells, then type "T" 
+* Step 2 : for each image appearing, use the polygon tool to draw the cortex outside contour, then type T
+* Step 3 : Automatic computation of the remaining needed contours. Just run it.
 * Step 4 : verify all your contours. Whenever a contour is not good, note the image name (title), and suppress the corresponding roi in 2_Cortex_Roi. When you will run again the previous step, the macro will only ask you to do the contours you removed
 * Step 5 : automatic segmentation. Just wait and see
 * Step 6 : verify segmentation
@@ -60,11 +57,7 @@ Interested in another file name formats ? Just write it down in the Step9 macro 
 
 * If any contours have been modified (particularly cortex_in), delete 3_CellRoi/blabla.zip, and run Script 5 again, which will recalculate the segmentation. In all cases, running Script 5 will allow you to calculate convex-hulls, which were not present in version 1 (operations carried out before June 2023). 
 
-
-
-
-
-* cortex_hullo must be generated
+* cortex_hull must be generated
 
 
 
