@@ -11,9 +11,8 @@ dirLac=maindir+"/4_LacunesIndices";
 
 
 
-
 list = getFileList(dir1);
-N=3;//list.length;
+N=list.length;
 run("Close All");
 values=newArray(1,1,1);
 Table.create("Perimeters");
@@ -34,10 +33,10 @@ for (ii=0; ii<N; ii++) {
 	run("Measure");
 	selectWindow("Results");
 	val=0;
-	val=getResult("Perim.", 0);
+	val=getValue("Perim.");
+	print(val);
 	run("Show All");
 	cleanRois();
-	print(val);
 	selectWindow("Perimeters");
 	Table.set("Image", ii,imgToTry);
 	Table.set("Perimeters", ii,val);

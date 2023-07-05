@@ -67,14 +67,47 @@ for (ii=0; ii<N; ii++) {
 	i=-1;
 	finished=false;
 	print("Je suis ici 2");
+	selectImage(id2);
 	if(getBoolean("Click Yes to click on lacunes, No to click on other\nI mean, if there are few lacune, click Yes it will be faster.\nIf there are few remaining cell, click No")==1){
 		imgName="ImgNameLac";
 		showMessage("Now click the lacunes (and T, for each lacune clicked).");
+
+		setTool("text");
+		setFont("SansSerif", 26, " antialiased");
+		setColor("white");
+		drawString("Click the lacunes", 300, 48);
+	
+		selectImage(id1);
+		setTool("text");
+		setFont("SansSerif", 26, " antialiased");
+		setColor("white");
+		drawString("Click the lacunes", 300, 48);
+		
+		setTool("point");
 	}
 	else{
 		imgName="ImgNameNoLac";
 		showMessage("Now click the other than lacunes (and T, for each no-lacune clicked).");
+
+		setTool("text");
+		setFont("SansSerif", 26, " antialiased");
+		setColor("white");
+		drawString("Click the remaining cells", 300, 48);
+	
+		selectImage(id1);
+		setTool("text");
+		setFont("SansSerif", 26, " antialiased");
+		setColor("white");
+		drawString("Click the remaining cells", 300, 48);
+		
+		setTool("point");
 	}
+
+	
+	
+	
+	
+	
 	while(!finished){
 		n=0;
 		while(n<1){
