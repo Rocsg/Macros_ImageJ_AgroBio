@@ -9,35 +9,33 @@ maindir = getDirMacro();
 dir1=maindir+"/1_Source";
 dirRoi=maindir+"/3_CellRoi";
 dirLac=maindir+"/4_LacunesIndices";
-
-
-
-
 list = getFileList(dir1);
 N=list.length;
+squaresize=110;
+
 
 imgName="ImgNameLac";
-print("Entering loop ");
 for (ii=0; ii<N; ii++) {
 	imgToTry=list[ii];
-	print("Starting loop with "+list[ii]);
+	print("Starting identifying lacune of image "+list[ii]);
+
+	//Skip image if the output file already exists
 	if(File.exists(dirLac +"/"+ imgToTry+".csv")){
-		print("Skipping file "+dirLac +"/"+ imgToTry+".csv");
+		print("csv of lacunes already exists. Skipping file "+dirLac +"/"+ imgToTry+".csv");
 		continue;
 	}
-
 	
 	run("Close All");
 	cleanRois();
-    squaresize=110;
 	//Prepare results table
-	prepareImage(dir1+"/"+imgToTry);
-	id2 = getImageID();
-
-	setTool("rectangle");
 	Table.create("Lacune_indices_"+imgToTry);
 	Table.setLocationAndSize(0, 0, 100,100);
 	Table.update();
+
+	//Prepare image 1 with no marking
+	prepareImage(dir1+"/"+imgToTry);
+	idOfImageSource = getImageID();
+	setTool("rectangle");
 	makeRectangle(0,0, squaresize, squaresize);
 	setForegroundColor(255, 255, 255);
 	run("Draw", "slice");
@@ -45,9 +43,11 @@ for (ii=0; ii<N; ii++) {
 	setFont("SansSerif", 13, " antialiased");
 	setColor("white");
 	drawString("Click here and T\nto finish", 1, 18);
+
+
+	//Prepare image 2 with marking
 	prepareImage(dir1+"/"+imgToTry);
-	id1 = getImageID();
-	
+	idOfImageWithRoiDrawn = getImageID();	
 	makeRectangle(0, 0, squaresize, squaresize);
 	setForegroundColor(255, 255, 255);
 	run("Draw", "slice");
@@ -55,29 +55,20 @@ for (ii=0; ii<N; ii++) {
 	setFont("SansSerif", 13, " antialiased");
 	setColor("white");
 	drawString("Click here and T\nto finish", 1, 18);
-	run("Synchronize Windows");
-	
-	setTool("point");
-
 	roiManager("open",  dirRoi +"/"+ imgToTry+".zip");
 	roiManager("draw");
-	cleanRois();
-	//Action loop for adding or removing cells
-	incr=-1;
-	i=-1;
-	finished=false;
-	print("Je suis ici 2");
-	selectImage(id2);
-	if(getBoolean("Click Yes to click on lacunes, No to click on other\nI mean, if there are few lacune, click Yes it will be faster.\nIf there are few remaining cell, click No")==1){
-		imgName="ImgNameLac";
-		showMessage("Now click the lacunes (and T, for each lacune clicked).");
 
+
+	//Additional setup drawn
+	if(getBoolean("Click Yes to click on lacunes, No to click on other\nI mean, if there are few lacune, click Yes it will be faster.\nIf there are few remaining cell, click No")==1){
+		selectImage(idOfImageSource);
+		imgName="ImgNameLac";
 		setTool("text");
 		setFont("SansSerif", 26, " antialiased");
 		setColor("white");
 		drawString("Click the lacunes", 300, 48);
 	
-		selectImage(id1);
+		selectImage(idOfImageWithRoiDrawn);
 		setTool("text");
 		setFont("SansSerif", 26, " antialiased");
 		setColor("white");
@@ -86,15 +77,14 @@ for (ii=0; ii<N; ii++) {
 		setTool("point");
 	}
 	else{
+		selectImage(idOfImageSource);
 		imgName="ImgNameNoLac";
-		showMessage("Now click the other than lacunes (and T, for each no-lacune clicked).");
-
 		setTool("text");
 		setFont("SansSerif", 26, " antialiased");
 		setColor("white");
 		drawString("Click the remaining cells", 300, 48);
 	
-		selectImage(id1);
+		selectImage(idOfImageWithRoiDrawn);
 		setTool("text");
 		setFont("SansSerif", 26, " antialiased");
 		setColor("white");
@@ -106,17 +96,25 @@ for (ii=0; ii<N; ii++) {
 	
 	
 	
+	//Prepare interface and setup sync
+	cleanRois();
+	setTool("point");
+	run("Synchronize Windows");
 	
 	
+	//Action loop for adding or removing cells
+	incr=-1;
+	i=-1;
+	finished=false;
 	while(!finished){
 		n=0;
 		while(n<1){
-			wait(100);
+			wait(150);
 			n=roiManager("count");
 		}
 		
 		tab=getCoordsOfPointInRoi();
-		print(tab[0]+","+tab[1]);
+		print("clicked point: "+tab[0]+","+tab[1]);
 		if(tab[0]<squaresize && tab[1]<squaresize)finished=true;
 		else{
 			cleanRois();
@@ -128,7 +126,20 @@ for (ii=0; ii<N; ii++) {
 				roiManager("Select", j);
 				if(Roi.contains(tab[0], tab[1]))i=j;
 			}
-			if(i==-1)continue;
+			if(i==-1){
+				//No roi containing the point. Select the one with the center more near
+				i=-1;
+				min=1000000000;
+				for(j=0;j<n;j++){
+					roiManager("Select", j);
+					Roi.getBounds(x, y, width, height);
+					dist=(tab[0]-x)*(tab[0]-x)+(tab[1]-y)*(tab[1]-y);
+					if(dist<min){
+						min=dist;
+						i=j;
+					}
+				}				
+			}
 	
 			//Is it a removal ?
 			found=false;
@@ -152,17 +163,12 @@ for (ii=0; ii<N; ii++) {
 				incr--;
 				Table.deleteRows(kk, kk);
 				Table.update();
-				//Paint in green
-/*				roiManager("Select", i);
-				run("Invert");
-				cleanRois();		
-*/
 			
 				id3 = getImageID();
-				selectImage(id1);
+				selectImage(idOfImageWithRoiDrawn);
 				roiManager("Select", i);
 				run("Invert");
-				selectImage(id2);
+				selectImage(idOfImageSource);
 				roiManager("Select", i);
 				run("Invert");
 				selectImage(id3);
@@ -177,20 +183,23 @@ for (ii=0; ii<N; ii++) {
 
 				//Paint in green
 				id3 = getImageID();
-				selectImage(id1);
+				selectImage(idOfImageWithRoiDrawn);
 				roiManager("Select", i);
 				run("Invert");
-				selectImage(id2);
+				selectImage(idOfImageSource);
 				roiManager("Select", i);
 				run("Invert");
 				selectImage(id3);
 				cleanRois();		
 			}
 		}
-			print("Je suis ici 2");
-
 	}
-	Table.save(dirLac +"/"+ imgToTry+".csv");
+	if(incr>=0){
+		Table.save(dirLac +"/"+ imgToTry+".csv");
+	}
+	else{
+		File.append(""+imgName+",Displayed index (1-inf)", dirLac +"/"+ imgToTry+".csv");
+	}
 	close("Lacune_indices_"+imgToTry);		
 	run("Close All");
 	cleanRois();
